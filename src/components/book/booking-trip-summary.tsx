@@ -11,7 +11,8 @@ type Props = {
   checkIn: string;
   checkOut: string;
   adults: number;
-  children: number;
+  /** Number of children staying. Not React `children` — the lint rule rejects that prop name. */
+  childrenCount: number;
   roomsCount: number;
   room?: AvailabilityRoom | null;
   property: PropertySettings;
@@ -22,7 +23,7 @@ export function BookingTripSummary({
   checkIn,
   checkOut,
   adults,
-  children,
+  childrenCount,
   roomsCount,
   room,
   property,
@@ -56,7 +57,7 @@ export function BookingTripSummary({
           <p className="text-[0.65rem] font-semibold tracking-[0.12em] text-ink-soft uppercase">Guests</p>
           <p className="mt-1 text-ink">
             {adults} adult{adults === 1 ? "" : "s"}
-            {children > 0 ? `, ${children} child${children === 1 ? "" : "ren"}` : ""}
+            {childrenCount > 0 ? `, ${childrenCount} child${childrenCount === 1 ? "" : "ren"}` : ""}
             {" · "}
             {roomsCount} room{roomsCount === 1 ? "" : "s"}
           </p>

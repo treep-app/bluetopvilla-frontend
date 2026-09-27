@@ -5,7 +5,7 @@ import { formatStayDate } from "@/lib/booking-utils";
 import { cn } from "@/lib/utils";
 import { Calendar, Minus, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { FormEvent, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useCallback, FormEvent, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
 type Props = {
@@ -89,7 +89,7 @@ export function BookingSearch({ tone = "light" }: Props) {
 
   useEffect(() => setMounted(true), []);
 
-  const updatePosition = () => {
+  const updatePosition = useCallback(() => {
     const trigger = panel === "check-out" ? checkOutRef.current : checkInRef.current;
     if (!trigger || !panel) {
       setPos(null);
@@ -107,7 +107,7 @@ export function BookingSearch({ tone = "light" }: Props) {
       left,
       openUp,
     });
-  };
+  }, [panel]);
 
   useLayoutEffect(() => {
     if (!panel) {
@@ -121,7 +121,7 @@ export function BookingSearch({ tone = "light" }: Props) {
       window.removeEventListener("resize", updatePosition);
       window.removeEventListener("scroll", updatePosition, true);
     };
-  }, [panel]);
+  }, [panel, updatePosition]);
 
   useEffect(() => {
     const onDown = (event: MouseEvent) => {

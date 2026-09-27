@@ -406,7 +406,7 @@ export function BookingFlow({ property }: { property: PropertySettings }) {
             checkIn={checkIn}
             checkOut={checkOut}
             adults={adults}
-            children={children}
+            childrenCount={children}
             roomsCount={rooms}
             room={chosen ?? null}
             property={property}
