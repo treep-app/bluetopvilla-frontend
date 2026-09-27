@@ -1,0 +1,3 @@
+# pnpm 11 settings for this package only — not a workspace of apps
+allowBuilds:
+  unrs-resolver: true

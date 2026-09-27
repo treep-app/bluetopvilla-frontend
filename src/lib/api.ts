@@ -1,0 +1,93 @@
+import type {
+  ApiResponse,
+  AvailabilitySearchResult,
+  BookingDto,
+  DiningItemDto,
+  EventDto,
+  EventSpaceDto,
+  ExperienceDto,
+  GalleryImageDto,
+  PaymentInitResult,
+  PaymentOptions,
+  PropertySettings,
+  RoomTypeDetail,
+  RoomTypeSummary,
+} from "@/lib/types";
+
+const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api";
+
+export class ApiRequestError extends Error {
+  constructor(
+    message: string,
+    public readonly code: string,
+    public readonly status: number,
+  ) {
+    super(message);
+  }
+}
+
+async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const response = await fetch(`${API}${path}`, {
+    ...init,
+    headers: {
+      "Content-Type": "application/json",
+      ...(init?.headers ?? {}),
+    },
+    cache: "no-store",
+  });
+  const json = (await response.json()) as ApiResponse<T>;
+  if (!json.success) {
+    throw new ApiRequestError(json.error.message, json.error.code, response.status);
+  }
+  return json.data;
+}
+
+export const api = {
+  property: () => request<PropertySettings>("/property"),
+  rooms: () => request<RoomTypeSummary[]>("/rooms"),
+  room: (slug: string) => request<RoomTypeDetail>(`/rooms/${slug}`),
+  gallery: (category?: string) =>
+    request<GalleryImageDto[]>(`/gallery${category ? `?category=${category}` : ""}`),
+  events: () => request<EventDto[]>("/events"),
+  eventSpaces: () => request<EventSpaceDto[]>("/event-spaces"),
+  reserveEvent: (body: Record<string, unknown>) =>
+    request<{ reference: string; status: string }>("/event-reservations", {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
+  experiences: () => request<ExperienceDto[]>("/experiences"),
+  dining: () => request<DiningItemDto[]>("/dining"),
+  search: (body: Record<string, unknown>) =>
+    request<AvailabilitySearchResult>("/availability/search", {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
+  createBooking: (body: Record<string, unknown>) =>
+    request<BookingDto>("/bookings", { method: "POST", body: JSON.stringify(body) }),
+  booking: (reference: string, email: string) =>
+    request<BookingDto>(`/bookings/${reference}?email=${encodeURIComponent(email)}`),
+  paymentOptions: () => request<PaymentOptions>("/payments/options"),
+  /** Asks the API to re-check pending Hubtel payments (covers callbacks that never arrived). */
+  refreshHubtel: (bookingReference: string) =>
+    request<{ status: string }>("/payments/hubtel/refresh", {
+      method: "POST",
+      body: JSON.stringify({ bookingReference }),
+    }),
+  payHubtel: (body: Record<string, unknown>) =>
+    request<PaymentInitResult>("/payments/hubtel/initiate", {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
+  payStripe: (body: Record<string, unknown>) =>
+    request<PaymentInitResult>("/payments/stripe/create", {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
+  contact: (body: Record<string, unknown>) =>
+    request<{ id: string }>("/contact", { method: "POST", body: JSON.stringify(body) }),
+  venue: (body: Record<string, unknown>) =>
+    request<{ reference: string; status: string }>("/venue-enquiries", {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
+};

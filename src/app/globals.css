@@ -1,0 +1,155 @@
+@import "tailwindcss";
+
+@theme {
+  --color-sand: #f4efe6;
+  --color-sand-deep: #e7ddd0;
+  --color-ink: #161410;
+  --color-ink-soft: #3c3832;
+  --color-dusk: #2a3540;
+  --color-ocean: #1b2c38;
+  --color-lamp: #d99d26;
+  --color-lamp-soft: #e8b03a;
+  --color-stone: #cfc4b4;
+  --font-display: "Cormorant Garamond", "Times New Roman", serif;
+  --font-sans: "Figtree", "Helvetica Neue", sans-serif;
+}
+
+:root {
+  --site-header-height: 4.25rem;
+  --hero-booking-height: 5.5rem;
+  /* Serena Hotels homepage: hero slider ≈ 77% of viewport */
+  --hero-slide-height: min(77svh, calc(100svh - var(--hero-booking-height)));
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+.hero-slide-frame {
+  height: var(--hero-slide-height);
+}
+
+body[data-lightbox="open"] header {
+  visibility: hidden;
+}
+
+body {
+  background: var(--color-sand);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+}
+
+::selection {
+  background: var(--color-lamp);
+  color: var(--color-ink);
+}
+
+.display {
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: -0.03em;
+}
+
+.eyebrow {
+  font-size: 0.72rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--color-lamp);
+}
+
+.hairline {
+  height: 1px;
+  background: currentColor;
+  opacity: 0.25;
+}
+
+.nav-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0;
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  transition: opacity 0.25s ease;
+}
+
+.nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 1px;
+  transform: scaleX(0);
+  transform-origin: left;
+  background: currentColor;
+  transition: transform 0.35s ease;
+}
+
+.nav-link:hover::after,
+.nav-link[data-active="true"]::after {
+  transform: scaleX(1);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  padding: 0.7rem 1.45rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease, transform 0.25s ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.btn-gold {
+  background: rgb(217, 157, 38);
+  color: var(--color-ink);
+  box-shadow: 0 8px 22px -14px rgb(217 157 38 / 90%);
+}
+
+.btn-gold:hover {
+  background: rgb(232, 176, 58);
+}
+
+.btn-gold-icon {
+  display: inline-flex;
+  height: 2.75rem;
+  width: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  background: rgb(217, 157, 38);
+  color: var(--color-ink);
+  transition: background-color 0.25s ease, transform 0.25s ease;
+}
+
+.btn-gold-icon:hover {
+  background: rgb(232, 176, 58);
+  transform: translateY(-1px);
+}
+
+.btn-ink {
+  background: var(--color-ink);
+  color: var(--color-sand);
+}
+
+.btn-ink:hover {
+  background: #2a241c;
+}
+
+.btn-ghost {
+  border: 1px solid currentColor;
+  background: transparent;
+}
+
+.btn-ghost:hover {
+  background: color-mix(in srgb, currentColor 8%, transparent);
+}
