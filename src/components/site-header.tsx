@@ -5,6 +5,7 @@ import { telHref } from "@/lib/property";
 import type { PropertySettings } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { Menu, X } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -43,8 +44,20 @@ export function SiteHeader({ property }: { property: PropertySettings | null }) 
       )}
     >
       <div className="mx-auto flex h-[4.25rem] max-w-[1400px] items-center gap-4 px-5 md:px-8">
-        <Link href="/" className="display shrink-0 text-[1.55rem] leading-none tracking-tight md:text-[1.65rem]">
-          Blue Top <span className="text-lamp">Villa</span>
+        <Link href="/" className="shrink-0" aria-label="Blue Top Villa — home">
+          <Image
+            src="/brand/logo.png"
+            alt="Blue Top Villa"
+            width={288}
+            height={36}
+            priority
+            className={cn(
+              "h-8 w-auto md:h-9",
+              // Transparent logo: over the hero photo the navy letters need a light plate
+              // to stay readable; on the solid header it sits directly.
+              overHero ? "rounded-lg bg-sand/90 px-2.5 py-1.5" : "-my-1",
+            )}
+          />
         </Link>
 
         <nav
