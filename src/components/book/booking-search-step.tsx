@@ -35,7 +35,7 @@ function Counter({
   onChange: (n: number) => void;
 }) {
   return (
-    <div className="flex items-center justify-between border border-stone/45 bg-sand/40 px-4 py-3">
+    <div className="flex items-center justify-between rounded-xl border border-stone/40 bg-sand/40 px-4 py-3">
       <p className="text-[0.7rem] font-semibold tracking-[0.12em] text-ink uppercase">{label}</p>
       <div className="flex items-center gap-3">
         <button
@@ -43,7 +43,7 @@ function Counter({
           aria-label={`Decrease ${label}`}
           disabled={value <= min}
           onClick={() => onChange(Math.max(min, value - 1))}
-          className="text-ink-soft disabled:opacity-30"
+          className="rounded-full p-1 text-ink-soft transition hover:bg-white disabled:opacity-30"
         >
           <Minus className="h-4 w-4" />
         </button>
@@ -53,7 +53,7 @@ function Counter({
           aria-label={`Increase ${label}`}
           disabled={value >= max}
           onClick={() => onChange(Math.min(max, value + 1))}
-          className="text-ink-soft disabled:opacity-30"
+          className="rounded-full p-1 text-ink-soft transition hover:bg-white disabled:opacity-30"
         >
           <Plus className="h-4 w-4" />
         </button>
@@ -75,6 +75,16 @@ export function BookingSearchStep({ defaults, checkInTime, checkOutTime, onSubmi
   const [panel, setPanel] = useState<DatePickerFocus | null>(null);
   const [focus, setFocus] = useState<DatePickerFocus>("check-in");
   const [error, setError] = useState(false);
+
+  useEffect(() => {
+    setValues({
+      checkIn: defaults.checkIn || today,
+      checkOut: defaults.checkOut,
+      adults: defaults.adults || "2",
+      children: defaults.children || "0",
+      rooms: defaults.rooms || "1",
+    });
+  }, [defaults.checkIn, defaults.checkOut, defaults.adults, defaults.children, defaults.rooms, today]);
 
   useEffect(() => {
     const onDown = (event: MouseEvent) => {
@@ -106,8 +116,8 @@ export function BookingSearchStep({ defaults, checkInTime, checkOutTime, onSubmi
         type="button"
         onClick={() => openDate(which)}
         className={cn(
-          "flex w-full flex-col border border-stone/45 bg-white px-4 py-3.5 text-left transition hover:border-lamp/40",
-          panel === which && "border-lamp bg-sand/30",
+          "flex w-full flex-col rounded-xl border border-stone/40 bg-white px-4 py-3.5 text-left transition hover:border-lamp/45",
+          panel === which && "border-lamp bg-sand/40 ring-1 ring-lamp/25",
           error && which === "check-out" && !values.checkOut && "ring-2 ring-red-300",
         )}
       >
@@ -136,13 +146,8 @@ export function BookingSearchStep({ defaults, checkInTime, checkOutTime, onSubmi
   );
 
   return (
-    <form ref={rootRef} onSubmit={submit} className="border border-stone/40 bg-white p-6 shadow-[0_20px_50px_-40px_rgba(22,20,16,0.35)] md:p-8">
-      <h2 className="display text-3xl text-ink">When will you arrive?</h2>
-      <p className="mt-2 text-sm text-ink-soft">
-        Check-in {checkInTime} · Check-out {checkOutTime}. Availability is confirmed by the booking engine.
-      </p>
-
-      <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+    <form ref={rootRef} onSubmit={submit} className="relative">
+      <div className="flex flex-col gap-3 sm:flex-row">
         {dateBtn("check-in", "Check-in", values.checkIn)}
         {dateBtn("check-out", "Check-out", values.checkOut)}
       </div>
@@ -175,7 +180,11 @@ export function BookingSearchStep({ defaults, checkInTime, checkOutTime, onSubmi
         <p className="mt-4 text-sm text-red-700">Please choose a check-out date.</p>
       ) : null}
 
-      <button type="submit" className="btn btn-gold mt-8 w-full md:w-auto">
+      <p className="mt-4 text-xs text-ink-soft">
+        Check-in {checkInTime} · Check-out {checkOutTime}
+      </p>
+
+      <button type="submit" className="btn btn-gold mt-6 w-full sm:w-auto">
         Show available rooms
       </button>
     </form>

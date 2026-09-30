@@ -10,6 +10,10 @@ import { createPortal } from "react-dom";
 
 type Props = {
   tone?: "light" | "dark";
+  /** Pre-select room type on the booking flow. */
+  roomSlug?: string;
+  /** Sidebar / room detail card layout. */
+  layout?: "bar" | "compact";
 };
 
 function Counter({
@@ -69,7 +73,7 @@ function Counter({
 
 type PopoverPos = { top: number; left: number; openUp: boolean };
 
-export function BookingSearch({ tone = "light" }: Props) {
+export function BookingSearch({ tone = "light", roomSlug, layout = "bar" }: Props) {
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
   const checkInRef = useRef<HTMLButtonElement>(null);
@@ -142,19 +146,20 @@ export function BookingSearch({ tone = "light" }: Props) {
       setPanel("check-out");
       return;
     }
-    router.push(
-      `/book?${new URLSearchParams({
-        checkIn,
-        checkOut,
-        adults: String(adults),
-        children: String(children),
-        rooms: String(rooms),
-        step: "rooms",
-      }).toString()}`,
-    );
+    const query = new URLSearchParams({
+      checkIn,
+      checkOut,
+      adults: String(adults),
+      children: String(children),
+      rooms: String(rooms),
+      step: "rooms",
+    });
+    if (roomSlug) query.set("room", roomSlug);
+    router.push(`/book?${query.toString()}`);
   };
 
   const dark = tone === "dark";
+  const compact = layout === "compact";
 
   const dateBtn = (which: DatePickerFocus, label: string, value: string) => (
     <div className="relative">
@@ -227,8 +232,9 @@ export function BookingSearch({ tone = "light" }: Props) {
         ref={formRef}
         onSubmit={onSubmit}
         className={cn(
-          "relative z-10 grid gap-3 overflow-visible p-4 md:grid-cols-6 md:items-end",
-          dark ? "bg-ink/70 text-sand backdrop-blur" : "border border-stone/40 bg-white shadow-xl",
+          "relative z-10 grid gap-3 overflow-visible",
+          compact ? "grid-cols-1 gap-3 sm:grid-cols-2" : "p-4 md:grid-cols-6 md:items-end",
+          !compact && (dark ? "bg-ink/70 text-sand backdrop-blur" : "border border-stone/40 bg-white shadow-xl"),
         )}
       >
         {dateBtn("check-in", "Check-in", checkIn)}
@@ -238,7 +244,10 @@ export function BookingSearch({ tone = "light" }: Props) {
         <Counter label="Rooms" value={rooms} min={1} max={5} onChange={setRooms} tone={tone} />
         <button
           type="submit"
-          className="bg-lamp px-4 py-3 text-xs font-semibold tracking-[0.2em] text-ink uppercase transition hover:bg-lamp-soft"
+          className={cn(
+            "bg-lamp px-4 py-3 text-xs font-semibold tracking-[0.2em] text-ink uppercase transition hover:bg-lamp-soft",
+            compact && "w-full",
+          )}
         >
           Check availability
         </button>

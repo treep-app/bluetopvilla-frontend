@@ -78,6 +78,11 @@ export const api = {
       method: "POST",
       body: JSON.stringify(body),
     }),
+  payCash: (body: Record<string, unknown>) =>
+    request<PaymentInitResult>("/payments/cash", {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
   payStripe: (body: Record<string, unknown>) =>
     request<PaymentInitResult>("/payments/stripe/create", {
       method: "POST",
@@ -85,9 +90,58 @@ export const api = {
     }),
   contact: (body: Record<string, unknown>) =>
     request<{ id: string }>("/contact", { method: "POST", body: JSON.stringify(body) }),
+  newsletterSubscribe: (body: { email: string; company?: string }) =>
+    request<{ subscribed: boolean }>("/newsletter/subscribe", {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
   venue: (body: Record<string, unknown>) =>
     request<{ reference: string; status: string }>("/venue-enquiries", {
       method: "POST",
       body: JSON.stringify(body),
     }),
+  verifyGoldenTicket: (token: string) =>
+    request<{
+      status: string;
+      offerTitle: string;
+      offerSubtitle: string | null;
+      offerTerms: string | null;
+      guestName: string | null;
+      expiresAt: string;
+      promoCode: string | null;
+      revealed: boolean;
+      redeemed: boolean;
+    }>(`/golden-tickets/verify?token=${encodeURIComponent(token)}`),
+  revealGoldenTicket: (token: string) =>
+    request<{
+      status: string;
+      promoCode: string;
+      offerTitle: string;
+      offerSubtitle?: string | null;
+      expiresAt?: string;
+      alreadyRedeemed: boolean;
+    }>("/golden-tickets/reveal", {
+      method: "POST",
+      body: JSON.stringify({ token }),
+    }),
+  redeemGoldenTicket: (token: string) =>
+    request<{
+      status: string;
+      promoCode: string;
+      offerTitle?: string;
+      alreadyRedeemed: boolean;
+    }>("/golden-tickets/redeem", {
+      method: "POST",
+      body: JSON.stringify({ token }),
+    }),
+  validatePromoCode: (code: string) =>
+    request<{
+      ticketId: string;
+      promoCode: string;
+      offerTitle: string;
+      offerSubtitle: string | null;
+      discountPercent: number;
+      expiresAt: string;
+      guestName: string | null;
+    }>(`/golden-tickets/promo?code=${encodeURIComponent(code)}`),
 };

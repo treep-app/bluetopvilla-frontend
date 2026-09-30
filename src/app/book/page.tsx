@@ -1,4 +1,5 @@
 import { BookingFlow } from "@/components/book/booking-flow";
+import { BookingLoading } from "@/components/book/booking-loading";
 import { api } from "@/lib/api";
 import type { Metadata } from "next";
 import { Suspense } from "react";
@@ -15,13 +16,7 @@ export default async function BookPage() {
   const property = await api.property();
 
   return (
-    <Suspense
-      fallback={
-        <div className="flex min-h-[50vh] items-center justify-center bg-sand pt-28 text-sm text-ink-soft">
-          Loading booking…
-        </div>
-      }
-    >
+    <Suspense fallback={<BookingLoading property={property} />}>
       <BookingFlow property={property} />
     </Suspense>
   );

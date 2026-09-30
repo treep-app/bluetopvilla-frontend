@@ -141,6 +141,9 @@ export type BookingDto = {
   total: string;
   holdExpiresAt: string | null;
   specialRequests: string | null;
+  promoCode?: string | null;
+  promoOffer?: string | null;
+  discountPercent?: number | null;
   guest: {
     firstName: string;
     lastName: string;
@@ -164,6 +167,10 @@ export type BookingDto = {
 export type PaymentInitResult = {
   provider: PaymentProvider;
   clientReference: string;
+  checkoutId?: string | null;
+  /** Preferred: Hubtel /direct URL for in-page embed. */
+  embedUrl?: string;
+  /** Full Hubtel checkout page (fallback if embed is blocked). */
   redirectUrl?: string;
   message: string;
 };
@@ -237,10 +244,13 @@ export type DiningItemDto = {
 export type PaymentOptions = {
   hubtel: {
     enabled: boolean;
-    /** checkout = redirect to Hubtel's hosted page; direct = prompt sent to the guest's phone. */
+    /** checkout = redirect to Hubtel Online Checkout; direct = prompt sent to the guest's phone. */
     mode: "checkout" | "direct";
+    /** Channels advertised on Hubtel Online Checkout (mobile_money | card | wallet). */
+    methods: Array<"mobile_money" | "card" | "wallet">;
     channels: string[];
   };
+  cash: { enabled: boolean; label: string };
   stripe: { enabled: boolean };
   holdMinutes: number;
 };

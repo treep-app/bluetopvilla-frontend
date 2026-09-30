@@ -4,8 +4,10 @@ import { cleanRoomCopy, formatStayRange } from "@/lib/booking-utils";
 import { checkTimesLabel } from "@/lib/property";
 import type { AvailabilityRoom, PropertySettings } from "@/lib/types";
 import { formatMoney } from "@/lib/utils";
+import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import type { ReactNode } from "react";
 
 type Props = {
   checkIn: string;
@@ -17,6 +19,17 @@ type Props = {
   room?: AvailabilityRoom | null;
   property: PropertySettings;
   guestName?: string;
+  /** Applied Golden Ticket / coupon discount preview. */
+  promo?: {
+    code: string;
+    offerTitle: string;
+    discountPercent: number;
+    discountAmount: number;
+    total: number;
+  } | null;
+  continueLabel?: string;
+  onContinue?: () => void;
+  continueDisabled?: boolean;
 };
 
 export function BookingTripSummary({
@@ -28,82 +41,107 @@ export function BookingTripSummary({
   room,
   property,
   guestName,
+  promo,
+  continueLabel,
+  onContinue,
+  continueDisabled,
 }: Props) {
+  const discountAmount = promo?.discountAmount ?? (room ? Number(room.discount) : 0);
+  const totalAmount = promo?.total ?? (room ? Number(room.total) : 0);
+
   return (
-    <aside className="border border-stone/40 bg-white shadow-[0_20px_50px_-40px_rgba(22,20,16,0.3)] lg:sticky lg:top-28">
-      <div className="border-b border-stone/35 bg-sand-deep/40 px-5 py-4">
-        <p className="text-[0.65rem] font-bold tracking-[0.16em] text-ink-soft uppercase">Your stay</p>
+    <aside className="overflow-hidden rounded-2xl border border-stone/35 bg-white shadow-[0_24px_60px_-40px_rgba(22,20,16,0.2)] lg:sticky lg:top-[calc(var(--site-header-height)+1.25rem)]">
+      <div className="border-b border-stone/30 px-5 py-4">
+        <p className="text-[0.65rem] font-semibold tracking-[0.16em] text-lamp uppercase">Your stay</p>
         <p className="display mt-1 text-2xl text-ink">{property.name}</p>
-        {property.address ? <p className="mt-1 text-xs text-ink-soft">{property.address}</p> : null}
+        {property.address ? <p className="mt-1 text-xs leading-snug text-ink-soft">{property.address}</p> : null}
       </div>
 
       {room?.featuredImage ? (
         <div className="relative aspect-[16/10]">
           <Image src={room.featuredImage} alt={room.name} fill className="object-cover" sizes="360px" />
+          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink/80 to-transparent px-4 py-3">
+            <p className="font-display text-lg text-sand">{room.name}</p>
+          </div>
         </div>
       ) : null}
 
       <div className="space-y-4 px-5 py-5 text-sm">
-        <div>
-          <p className="text-[0.65rem] font-semibold tracking-[0.12em] text-ink-soft uppercase">Dates</p>
-          <p className="mt-1 font-medium text-ink">{formatStayRange(checkIn, checkOut)}</p>
+        <Row label="Dates">
+          <p className="font-medium text-ink">{formatStayRange(checkIn, checkOut)}</p>
           {room ? (
             <p className="mt-0.5 text-xs text-ink-soft">
               {room.nights} night{room.nights === 1 ? "" : "s"}
             </p>
           ) : null}
-        </div>
-        <div>
-          <p className="text-[0.65rem] font-semibold tracking-[0.12em] text-ink-soft uppercase">Guests</p>
-          <p className="mt-1 text-ink">
+        </Row>
+
+        <Row label="Guests">
+          <p className="text-ink">
             {adults} adult{adults === 1 ? "" : "s"}
             {childrenCount > 0 ? `, ${childrenCount} child${childrenCount === 1 ? "" : "ren"}` : ""}
             {" · "}
             {roomsCount} room{roomsCount === 1 ? "" : "s"}
           </p>
-        </div>
-        {room ? (
-          <div>
-            <p className="text-[0.65rem] font-semibold tracking-[0.12em] text-ink-soft uppercase">Room</p>
-            <p className="mt-1 font-medium text-ink">{room.name}</p>
+        </Row>
+
+        {room && !room.featuredImage ? (
+          <Row label="Room">
+            <p className="font-medium text-ink">{room.name}</p>
             <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-ink-soft">{cleanRoomCopy(room.description)}</p>
-          </div>
+          </Row>
         ) : null}
+
         {guestName ? (
-          <div>
-            <p className="text-[0.65rem] font-semibold tracking-[0.12em] text-ink-soft uppercase">Guest</p>
-            <p className="mt-1 text-ink">{guestName}</p>
-          </div>
+          <Row label="Guest">
+            <p className="text-ink">{guestName}</p>
+          </Row>
         ) : null}
 
         {room ? (
-          <dl className="space-y-2 border-t border-stone/35 pt-4">
-            <div className="flex justify-between text-ink-soft">
+          <dl className="space-y-2 border-t border-stone/30 pt-4">
+            <div className="flex justify-between gap-3 text-ink-soft">
               <dt>
-                {formatMoney(room.nightly, room.currency)} × {room.nights} night{room.nights === 1 ? "" : "s"}
+                {formatMoney(room.nightly, room.currency)} × {room.nights} night
+                {room.nights === 1 ? "" : "s"}
               </dt>
               <dd>{formatMoney(room.subtotal, room.currency)}</dd>
             </div>
-            <div className="flex justify-between text-ink-soft">
+            <div className="flex justify-between gap-3 text-ink-soft">
               <dt>Taxes &amp; fees</dt>
               <dd>{formatMoney(Number(room.taxes) + Number(room.fees), room.currency)}</dd>
             </div>
-            {Number(room.discount) > 0 ? (
-              <div className="flex justify-between text-ink-soft">
-                <dt>Discount</dt>
-                <dd>−{formatMoney(room.discount, room.currency)}</dd>
+            {discountAmount > 0 ? (
+              <div className="flex justify-between gap-3 text-emerald-800">
+                <dt>
+                  Coupon{promo?.code ? ` (${promo.code})` : ""}
+                  {promo?.discountPercent ? ` · ${promo.discountPercent}% off` : ""}
+                </dt>
+                <dd>−{formatMoney(discountAmount, room.currency)}</dd>
               </div>
             ) : null}
-            <div className="flex justify-between border-t border-stone/30 pt-3 text-base font-semibold text-ink">
-              <dt>Total</dt>
-              <dd>{formatMoney(room.total, room.currency)}</dd>
+            <div className="flex justify-between gap-3 border-t border-stone/30 pt-3">
+              <dt className="text-[0.65rem] font-semibold tracking-[0.14em] text-ink-soft uppercase">Total</dt>
+              <dd className="display text-2xl leading-none text-ink">{formatMoney(totalAmount, room.currency)}</dd>
             </div>
           </dl>
         ) : (
-          <p className="border-t border-stone/35 pt-4 text-xs text-ink-soft">
-            Select dates and a room to see your total.
+          <p className="border-t border-stone/30 pt-4 text-xs text-ink-soft">
+            Select a room to see your total.
           </p>
         )}
+
+        {continueLabel && onContinue ? (
+          <button
+            type="button"
+            onClick={onContinue}
+            disabled={continueDisabled}
+            className="btn btn-gold inline-flex w-full justify-center gap-2 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            {continueLabel}
+            <ArrowRight className="h-4 w-4" aria-hidden />
+          </button>
+        ) : null}
 
         <p className="text-[0.65rem] leading-relaxed text-ink-soft">
           {checkTimesLabel(property)}.{" "}
@@ -113,5 +151,14 @@ export function BookingTripSummary({
         </p>
       </div>
     </aside>
+  );
+}
+
+function Row({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div>
+      <p className="text-[0.65rem] font-semibold tracking-[0.12em] text-ink-soft uppercase">{label}</p>
+      <div className="mt-1">{children}</div>
+    </div>
   );
 }

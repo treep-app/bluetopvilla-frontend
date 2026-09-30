@@ -3,15 +3,15 @@
 import { RoomListingCard } from "@/components/rooms/room-listing-card";
 import type { RoomTypeSummary } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import { SlidersHorizontal } from "lucide-react";
-import { useMemo, useState } from "react";
+import Link from "next/link";
+import { useMemo, useState, type ReactNode } from "react";
 
 type SortKey = "recommended" | "price-asc" | "price-desc" | "occupancy";
 
 const sortOptions: { value: SortKey; label: string }[] = [
   { value: "recommended", label: "Recommended" },
-  { value: "price-asc", label: "Price: low to high" },
-  { value: "price-desc", label: "Price: high to low" },
+  { value: "price-asc", label: "Price · low to high" },
+  { value: "price-desc", label: "Price · high to low" },
   { value: "occupancy", label: "Most guests" },
 ];
 
@@ -43,95 +43,98 @@ export function RoomCatalog({ rooms }: Props) {
 
   const guestFilters = useMemo(() => {
     const max = Math.max(2, ...rooms.map((r) => r.occupancy));
-    return Array.from({ length: max - 1 }, (_, i) => i + 2);
+    return Array.from({ length: Math.min(max - 1, 4) }, (_, i) => i + 2);
   }, [rooms]);
 
   return (
-    <div className="grid gap-10 lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-14">
-      <aside className="lg:sticky lg:top-28 lg:self-start">
-        <div className="border border-stone/45 bg-white p-5 shadow-[0_16px_40px_-32px_rgba(22,20,16,0.25)]">
-          <div className="flex items-center gap-2 text-ink">
-            <SlidersHorizontal className="h-4 w-4 text-lamp" strokeWidth={1.5} aria-hidden />
-            <p className="text-[0.72rem] font-bold tracking-[0.14em] uppercase">Refine results</p>
+    <section className="flex min-h-0 flex-1 flex-col" aria-labelledby="room-catalog-heading">
+      <div className="shrink-0 border-b border-stone/35 bg-sand/80 px-5 py-4 backdrop-blur-sm md:px-8">
+        <div className="mx-auto flex max-w-[1400px] flex-wrap items-center justify-between gap-4">
+          <div>
+            <h2 id="room-catalog-heading" className="display text-xl text-ink md:text-2xl">
+              Choose your room
+            </h2>
+            <p className="mt-0.5 text-xs text-ink-soft">
+              {filtered.length} of {rooms.length} shown · rates from live availability
+            </p>
           </div>
 
-          <div className="mt-6">
-            <p className="text-[0.68rem] font-semibold tracking-[0.12em] text-ink-soft uppercase">Guests</p>
-            <div className="mt-3 flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={() => setMinGuests(0)}
-                className={cn(
-                  "border px-3 py-1.5 text-[0.68rem] font-semibold tracking-[0.08em] uppercase transition",
-                  minGuests === 0
-                    ? "border-ink bg-ink text-sand"
-                    : "border-stone/50 bg-sand text-ink-soft hover:border-ink/30",
-                )}
-              >
-                Any
-              </button>
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className="mr-1 text-[0.62rem] font-semibold tracking-[0.12em] text-ink-soft uppercase">Guests</span>
+              <FilterPill active={minGuests === 0} onClick={() => setMinGuests(0)}>Any</FilterPill>
               {guestFilters.map((n) => (
-                <button
-                  key={n}
-                  type="button"
-                  onClick={() => setMinGuests(n)}
-                  className={cn(
-                    "border px-3 py-1.5 text-[0.68rem] font-semibold tracking-[0.08em] uppercase transition",
-                    minGuests === n
-                      ? "border-ink bg-ink text-sand"
-                      : "border-stone/50 bg-sand text-ink-soft hover:border-ink/30",
-                  )}
-                >
+                <FilterPill key={n} active={minGuests === n} onClick={() => setMinGuests(n)}>
                   {n}+
-                </button>
+                </FilterPill>
               ))}
             </div>
-          </div>
-
-          <div className="mt-8">
-            <label htmlFor="room-sort" className="text-[0.68rem] font-semibold tracking-[0.12em] text-ink-soft uppercase">
-              Sort by
+            <label className="flex items-center gap-2 text-[0.62rem] font-semibold tracking-[0.12em] text-ink-soft uppercase">
+              Sort
+              <select
+                value={sort}
+                onChange={(e) => setSort(e.target.value as SortKey)}
+                className="border border-stone/45 bg-white px-2.5 py-1.5 text-[0.7rem] font-medium tracking-normal text-ink outline-none focus:border-lamp"
+              >
+                {sortOptions.map((opt) => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
             </label>
-            <select
-              id="room-sort"
-              value={sort}
-              onChange={(e) => setSort(e.target.value as SortKey)}
-              className="mt-2 w-full border border-stone/50 bg-sand px-3 py-2.5 text-sm text-ink outline-none focus:border-lamp"
+            <Link
+              href="/book"
+              className="hidden text-[0.65rem] font-semibold tracking-[0.12em] text-ink uppercase underline-offset-4 hover:text-lamp hover:underline sm:inline"
             >
-              {sortOptions.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
+              Book now
+            </Link>
           </div>
-
-          <p className="mt-8 border-t border-stone/40 pt-5 text-xs leading-relaxed text-ink-soft">
-            Showing <span className="font-semibold text-ink">{filtered.length}</span> of {rooms.length} room
-            {rooms.length === 1 ? "" : " types"}. Final rates may vary by date.
-          </p>
         </div>
-      </aside>
-
-      <div className="space-y-8">
-        {filtered.length === 0 ? (
-          <div className="border border-dashed border-stone/60 bg-white/60 px-6 py-16 text-center">
-            <p className="display text-3xl text-ink">No rooms match these filters</p>
-            <p className="mt-3 text-sm text-ink-soft">Try lowering the guest count or choose &ldquo;Any&rdquo;.</p>
-            <button
-              type="button"
-              onClick={() => setMinGuests(0)}
-              className="btn btn-ghost mt-8 border-ink/25 text-ink"
-            >
-              Reset filters
-            </button>
-          </div>
-        ) : (
-          filtered.map((room, index) => (
-            <RoomListingCard key={room.id} room={room} index={index} featured={index === 0 && filtered.length > 1} />
-          ))
-        )}
       </div>
-    </div>
+
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-5 md:px-8 md:py-6">
+        <div className="mx-auto max-w-[1400px]">
+          {filtered.length === 0 ? (
+            <div className="flex h-full min-h-[200px] flex-col items-center justify-center border border-dashed border-stone/50 bg-white/50 px-6 py-12 text-center">
+              <p className="display text-2xl text-ink">No rooms match</p>
+              <p className="mt-2 text-sm text-ink-soft">Try &ldquo;Any&rdquo; guests or a different sort.</p>
+              <button type="button" onClick={() => setMinGuests(0)} className="btn btn-ghost mt-6 border-ink/25 text-ink">
+                Reset filters
+              </button>
+            </div>
+          ) : (
+            <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 xl:gap-5">
+              {filtered.map((room, index) => (
+                <li key={room.id}>
+                  <RoomListingCard room={room} index={index} />
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function FilterPill({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        "rounded-full border px-2.5 py-1 text-[0.62rem] font-semibold tracking-[0.06em] uppercase transition",
+        active ? "border-ink bg-ink text-sand" : "border-stone/45 bg-white text-ink-soft hover:border-ink/25",
+      )}
+    >
+      {children}
+    </button>
   );
 }

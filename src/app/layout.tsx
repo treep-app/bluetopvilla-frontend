@@ -3,7 +3,7 @@ import { Cormorant_Garamond, Figtree } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
 import { SiteHeader } from "@/components/site-header";
-import { SiteFooter } from "@/components/site-footer";
+import { ConditionalFooter } from "@/components/conditional-footer";
 import { api } from "@/lib/api";
 
 const display = Cormorant_Garamond({
@@ -51,7 +51,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <Providers>
           <SiteHeader property={property} />
           <main>{children}</main>
-          <SiteFooter property={property} />
+          <ConditionalFooter property={property} />
         </Providers>
       </body>
     </html>

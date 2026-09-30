@@ -1,136 +1,262 @@
 "use client";
 
-import { RoomAmenityIcon } from "@/components/rooms/room-amenity-icon";
 import { cleanRoomCopy } from "@/lib/booking-utils";
 import type { AvailabilityRoom } from "@/lib/types";
 import { cn, formatMoney } from "@/lib/utils";
-import { BedDouble, Users } from "lucide-react";
+import { BedDouble, Check, Users } from "lucide-react";
 import Image from "next/image";
+import { useMemo, useState } from "react";
+
+type SortKey = "recommended" | "price-asc" | "price-desc";
 
 type Props = {
   rooms: AvailabilityRoom[];
   selectedSlug: string;
   loading: boolean;
   error: string | null;
+  dateLabel: string;
   onSelect: (slug: string) => void;
+  onContinue: () => void;
+  onChangeDates: () => void;
 };
 
-export function BookingRoomsStep({ rooms, selectedSlug, loading, error, onSelect }: Props) {
+export function BookingRoomsStep({
+  rooms,
+  selectedSlug,
+  loading,
+  error,
+  dateLabel,
+  onSelect,
+  onContinue,
+  onChangeDates,
+}: Props) {
+  const [sort, setSort] = useState<SortKey>("recommended");
+
+  const sorted = useMemo(() => {
+    const list = [...rooms];
+    if (sort === "price-asc") list.sort((a, b) => Number(a.total) - Number(b.total));
+    if (sort === "price-desc") list.sort((a, b) => Number(b.total) - Number(a.total));
+    return list;
+  }, [rooms, sort]);
+
+  const selected = rooms.find((room) => room.slug === selectedSlug) ?? null;
+
   if (loading) {
     return (
-      <div className="space-y-4">
-        {[0, 1, 2].map((i) => (
-          <div key={i} className="h-44 animate-pulse border border-stone/30 bg-white/70" />
-        ))}
-        <p className="text-sm text-ink-soft">Checking availability at the villa…</p>
+      <div>
+        <RoomsHeader count={null} dateLabel={dateLabel} sort={sort} onSort={setSort} onChangeDates={onChangeDates} />
+        <div className="mt-6 grid gap-4 sm:grid-cols-2">
+          {[0, 1, 2, 3].map((i) => (
+            <div key={i} className="aspect-[4/5] animate-pulse bg-ink/5" />
+          ))}
+        </div>
+        <p className="mt-4 text-sm text-ink-soft">Checking availability at the villa…</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="border border-red-200 bg-red-50 px-5 py-6 text-sm text-red-800">
-        {error}
+      <div>
+        <RoomsHeader count={0} dateLabel={dateLabel} sort={sort} onSort={setSort} onChangeDates={onChangeDates} />
+        <div className="mt-6 border border-red-200 bg-red-50 px-5 py-6 text-sm text-red-800">{error}</div>
       </div>
     );
   }
 
   if (rooms.length === 0) {
     return (
-      <div className="border border-dashed border-stone/55 bg-white px-6 py-12 text-center">
-        <p className="display text-3xl text-ink">No rooms for those dates</p>
-        <p className="mt-2 text-sm text-ink-soft">Try different dates or fewer rooms.</p>
+      <div>
+        <RoomsHeader count={0} dateLabel={dateLabel} sort={sort} onSort={setSort} onChangeDates={onChangeDates} />
+        <div className="mt-8 border border-dashed border-stone/50 px-6 py-14 text-center">
+          <p className="display text-3xl text-ink">No rooms for those dates</p>
+          <p className="mt-2 text-sm text-ink-soft">Try different dates or fewer rooms.</p>
+          <button type="button" onClick={onChangeDates} className="btn btn-gold mt-6 inline-flex">
+            Change dates
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
-      <div>
-        <h2 className="display text-3xl text-ink">Choose your room</h2>
-        <p className="mt-1 text-sm text-ink-soft">
-          Prices include taxes &amp; fees for your stay. Select a room to continue.
-        </p>
-      </div>
-      <ul className="space-y-4">
-        {rooms.map((room) => {
+    <div>
+      <RoomsHeader
+        count={rooms.length}
+        dateLabel={dateLabel}
+        sort={sort}
+        onSort={setSort}
+        onChangeDates={onChangeDates}
+      />
+
+      <ul className="mt-6 grid gap-4 sm:grid-cols-2 xl:gap-5">
+        {sorted.map((room) => {
           const active = room.slug === selectedSlug;
-          const amenities = room.amenities?.slice(0, 4) ?? [];
+          const bed =
+            room.bedConfig && !room.bedConfig.startsWith("TODO") ? room.bedConfig : null;
           return (
             <li key={room.id}>
               <button
                 type="button"
                 onClick={() => onSelect(room.slug)}
+                aria-pressed={active}
                 className={cn(
-                  "grid w-full gap-5 border bg-white p-4 text-left transition md:grid-cols-[200px_1fr_auto] md:p-5",
-                  active
-                    ? "border-lamp shadow-[0_16px_40px_-28px_rgba(217,157,38,0.55)] ring-1 ring-lamp"
-                    : "border-stone/40 hover:border-ink/30",
+                  "group relative flex h-full w-full flex-col overflow-hidden bg-ink text-left transition",
+                  active ? "ring-2 ring-lamp ring-offset-2 ring-offset-sand" : "hover:opacity-[0.97]",
                 )}
               >
-                <div className="relative aspect-[4/3] overflow-hidden bg-ink/5 md:aspect-auto md:min-h-[140px]">
+                <div className="relative aspect-[4/5] w-full overflow-hidden sm:aspect-[5/6]">
                   {room.featuredImage ? (
-                    <Image src={room.featuredImage} alt={room.name} fill className="object-cover" sizes="200px" />
-                  ) : null}
-                </div>
-                <div>
-                  <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                    <h3 className="display text-2xl text-ink md:text-3xl">{room.name}</h3>
-                    <span className="text-xs tracking-[0.1em] text-ink-soft uppercase">
+                    <Image
+                      src={room.featuredImage}
+                      alt={room.name}
+                      fill
+                      className={cn(
+                        "object-cover transition duration-700 ease-out group-hover:scale-[1.04]",
+                        active ? "scale-[1.02]" : "",
+                      )}
+                      sizes="(max-width: 640px) 100vw, (max-width: 1280px) 40vw, 420px"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 bg-gradient-to-br from-dusk to-ink" />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/35 to-transparent" />
+
+                  {room.availableUnits <= 2 ? (
+                    <span className="absolute top-3 left-3 bg-ink/70 px-2.5 py-1 text-[0.6rem] font-semibold tracking-[0.14em] text-sand uppercase backdrop-blur-sm">
                       {room.availableUnits} left
                     </span>
-                  </div>
-                  <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-ink-soft">
-                    {cleanRoomCopy(room.description)}
-                  </p>
-                  <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-ink-soft">
-                    <li className="inline-flex items-center gap-1.5">
-                      <Users className="h-3.5 w-3.5 text-lamp" aria-hidden />
-                      Up to {room.occupancy}
-                    </li>
-                    {room.bedConfig && !room.bedConfig.startsWith("TODO") ? (
-                      <li className="inline-flex items-center gap-1.5">
-                        <BedDouble className="h-3.5 w-3.5 text-lamp" aria-hidden />
-                        {room.bedConfig}
-                      </li>
-                    ) : null}
-                  </ul>
-                  {amenities.length > 0 ? (
-                    <ul className="mt-3 flex flex-wrap gap-1.5">
-                      {amenities.map((a) => (
-                        <li
-                          key={a.id}
-                          className="inline-flex items-center gap-1 border border-stone/40 bg-sand/50 px-2 py-0.5 text-[0.62rem] tracking-[0.04em] text-ink-soft uppercase"
-                        >
-                          <RoomAmenityIcon icon={a.icon} className="h-3 w-3 text-lamp" />
-                          {a.name}
-                        </li>
-                      ))}
-                    </ul>
                   ) : null}
-                </div>
-                <div className="flex flex-row items-end justify-between gap-4 md:flex-col md:items-end md:justify-center">
-                  <div className="text-left md:text-right">
-                    <p className="text-[0.62rem] font-semibold tracking-[0.12em] text-ink-soft uppercase">Total stay</p>
-                    <p className="display text-3xl text-ink">{formatMoney(room.total, room.currency)}</p>
-                    <p className="text-xs text-ink-soft">
-                      {room.nights} night{room.nights === 1 ? "" : "s"} · {formatMoney(room.nightly, room.currency)}/night
+
+                  {active ? (
+                    <span className="absolute top-3 right-3 inline-flex items-center gap-1 bg-lamp px-2.5 py-1 text-[0.6rem] font-bold tracking-[0.14em] text-ink uppercase">
+                      <Check className="h-3 w-3" aria-hidden />
+                      Selected
+                    </span>
+                  ) : null}
+
+                  <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5">
+                    <h3 className="display text-2xl leading-none text-sand sm:text-[1.75rem]">{room.name}</h3>
+                    <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-sand/70">
+                      {cleanRoomCopy(room.description)}
                     </p>
+                    <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.7rem] text-sand/75">
+                      <span className="inline-flex items-center gap-1.5">
+                        <Users className="h-3.5 w-3.5 text-lamp-soft" aria-hidden />
+                        Up to {room.occupancy}
+                      </span>
+                      {bed ? (
+                        <span className="inline-flex items-center gap-1.5">
+                          <BedDouble className="h-3.5 w-3.5 text-lamp-soft" aria-hidden />
+                          {bed}
+                        </span>
+                      ) : null}
+                      {room.sizeSqm ? <span>{room.sizeSqm} m²</span> : null}
+                    </div>
+                    <div className="mt-4 flex items-end justify-between gap-3 border-t border-white/15 pt-3">
+                      <div>
+                        <p className="text-[0.58rem] font-semibold tracking-[0.14em] text-sand/50 uppercase">
+                          Total stay
+                        </p>
+                        <p className="display text-2xl leading-none text-sand">
+                          {formatMoney(room.total, room.currency)}
+                        </p>
+                        <p className="mt-1 text-[0.7rem] text-sand/55">
+                          {formatMoney(room.nightly, room.currency)} / night
+                        </p>
+                      </div>
+                      <span
+                        className={cn(
+                          "shrink-0 px-3 py-2 text-[0.62rem] font-bold tracking-[0.14em] uppercase transition",
+                          active ? "bg-lamp text-ink" : "bg-sand text-ink group-hover:bg-lamp",
+                        )}
+                      >
+                        {active ? "Selected" : "Select"}
+                      </span>
+                    </div>
                   </div>
-                  <span
-                    className={cn(
-                      "inline-flex px-4 py-2.5 text-[0.68rem] font-bold tracking-[0.14em] uppercase",
-                      active ? "bg-lamp text-ink" : "bg-ink text-sand",
-                    )}
-                  >
-                    {active ? "Selected" : "Select"}
-                  </span>
                 </div>
               </button>
             </li>
           );
         })}
       </ul>
+
+      {/* Mobile continue bar */}
+      <div className="sticky bottom-3 z-20 mt-6 lg:hidden">
+        <div className="flex items-center justify-between gap-3 border border-stone/40 bg-white/95 px-4 py-3 shadow-[0_16px_40px_-24px_rgba(22,20,16,0.45)] backdrop-blur-md">
+          <div className="min-w-0">
+            {selected ? (
+              <>
+                <p className="truncate text-sm font-medium text-ink">{selected.name}</p>
+                <p className="text-xs text-ink-soft">{formatMoney(selected.total, selected.currency)}</p>
+              </>
+            ) : (
+              <p className="text-sm text-ink-soft">Select a room to continue</p>
+            )}
+          </div>
+          <button
+            type="button"
+            disabled={!selected}
+            onClick={onContinue}
+            className="btn btn-gold shrink-0 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            Continue
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function RoomsHeader({
+  count,
+  dateLabel,
+  sort,
+  onSort,
+  onChangeDates,
+}: {
+  count: number | null;
+  dateLabel: string;
+  sort: SortKey;
+  onSort: (value: SortKey) => void;
+  onChangeDates: () => void;
+}) {
+  return (
+    <div>
+      <button
+        type="button"
+        onClick={onChangeDates}
+        className="text-[0.7rem] font-semibold tracking-[0.12em] text-ink-soft uppercase transition hover:text-ink"
+      >
+        ← Change dates
+      </button>
+      <div className="mt-4 flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h2 className="display text-3xl text-ink md:text-4xl">Choose your room</h2>
+          <p className="mt-2 text-sm text-ink-soft">
+            {dateLabel}
+            {count != null ? (
+              <>
+                {" "}
+                · {count} option{count === 1 ? "" : "s"}
+              </>
+            ) : null}
+          </p>
+        </div>
+        <label className="flex items-center gap-2 text-[0.65rem] font-semibold tracking-[0.12em] text-ink-soft uppercase">
+          Sort
+          <select
+            value={sort}
+            onChange={(e) => onSort(e.target.value as SortKey)}
+            className="border border-stone/45 bg-white px-3 py-2 text-[0.7rem] font-medium tracking-normal text-ink outline-none focus:border-lamp"
+          >
+            <option value="recommended">Recommended</option>
+            <option value="price-asc">Price · low to high</option>
+            <option value="price-desc">Price · high to low</option>
+          </select>
+        </label>
+      </div>
     </div>
   );
 }
