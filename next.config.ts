@@ -26,7 +26,14 @@ function mediaPatterns() {
   patterns.push({
     protocol: "https",
     hostname: "s3.us-east-1.amazonaws.com",
+    port: "",
     pathname: "/bluetop-villa-media-prod/uploads/**",
+  });
+  patterns.push({
+    protocol: "https",
+    hostname: "bluetop-villa-media-prod.s3.us-east-1.amazonaws.com",
+    port: "",
+    pathname: "/uploads/**",
   });
 
   return patterns;
