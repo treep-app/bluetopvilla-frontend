@@ -1,19 +1,35 @@
 import type { NextConfig } from "next";
 
-/** Room photos uploaded from the dashboard are served by the API (or MEDIA host), so allow those origins. */
+/**
+ * Origins next/image is allowed to optimize.
+ * - API host + optional MEDIA host: dashboard uploads served from /uploads/...
+ * - Direct S3 bucket URLs: uploads live in S3 in production, and MEDIA_PUBLIC_URL
+ *   may be unset or point elsewhere, so always allow the bucket form too.
+ */
 function mediaPatterns() {
-  const sources = [process.env.NEXT_PUBLIC_MEDIA_URL, process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api"];
-  return sources
-    .filter((value): value is string => Boolean(value))
-    .map((value) => {
-      const url = new URL(value);
-      return {
-        protocol: url.protocol.replace(":", "") as "http" | "https",
-        hostname: url.hostname,
-        port: url.port,
-        pathname: "/uploads/**",
-      };
-    });
+  const sources = [
+    process.env.NEXT_PUBLIC_MEDIA_URL,
+    process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api",
+  ].filter((value): value is string => Boolean(value));
+
+  const patterns = sources.map((value) => {
+    const url = new URL(value);
+    return {
+      protocol: url.protocol.replace(":", "") as "http" | "https",
+      hostname: url.hostname,
+      port: url.port,
+      pathname: "/uploads/**",
+    };
+  });
+
+  // The S3 bucket that stores dashboard uploads (region fixed in the URL below).
+  patterns.push({
+    protocol: "https",
+    hostname: "s3.us-east-1.amazonaws.com",
+    pathname: "/bluetop-villa-media-prod/uploads/**",
+  });
+
+  return patterns;
 }
 
 const nextConfig: NextConfig = {
