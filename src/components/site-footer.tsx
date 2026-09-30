@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { FooterNewsletter } from "@/components/footer-newsletter";
-import { checkTimesLabel, telHref } from "@/lib/property";
+import { checkTimesLabel } from "@/lib/property";
 import type { PropertySettings } from "@/lib/types";
 
 const explore = [
@@ -57,7 +57,7 @@ export function SiteFooter({ property }: { property: PropertySettings | null }) 
             />
           </Link>
           <p className="mt-5 max-w-xs text-sm leading-7 text-sand/65">
-            Boutique hotel stays and memorable events in Kasoa, Ghana — warm service, calm rooms, golden-hour views.
+            Boutique hotel stays and memorable events in Kasoa, Ghana - warm service, calm rooms, golden-hour views.
           </p>
           <div className="mt-8 max-w-md">
             <p className="eyebrow mb-3 text-lamp">Newsletter</p>
@@ -115,28 +115,6 @@ export function SiteFooter({ property }: { property: PropertySettings | null }) 
               </FooterLink>
             ))}
           </nav>
-          <div className="mt-8 space-y-2 border-t border-white/[0.08] pt-6 text-sm">
-            {property?.phone ? (
-              <p>
-                <a
-                  href={telHref(property.phone)}
-                  className="text-sand/85 transition hover:text-lamp"
-                >
-                  {property.phone}
-                </a>
-              </p>
-            ) : null}
-            {property?.email ? (
-              <p>
-                <a
-                  href={`mailto:${property.email}`}
-                  className="text-sand/85 transition hover:text-lamp"
-                >
-                  {property.email}
-                </a>
-              </p>
-            ) : null}
-          </div>
         </div>
       </div>
 
