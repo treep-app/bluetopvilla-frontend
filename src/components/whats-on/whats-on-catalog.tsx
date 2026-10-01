@@ -62,7 +62,7 @@ export function WhatsOnCatalog({
   }
 
   return (
-    <div className="mx-auto max-w-[1400px] px-5 pb-20 pt-8 md:px-8 md:pb-28">
+    <div className="mx-auto min-w-0 max-w-[1400px] px-4 pb-16 pt-6 sm:px-5 sm:pb-20 sm:pt-8 md:px-8 md:pb-28">
       <div className="flex flex-col gap-4 border-b border-stone/35 pb-6 md:flex-row md:items-center md:justify-between">
         <p className="text-sm text-ink-soft">
           <span className="font-semibold text-ink">{filtered.length}</span>{" "}

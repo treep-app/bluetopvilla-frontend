@@ -15,14 +15,62 @@
 }
 
 :root {
-  --site-header-height: 4.25rem;
+  --site-header-height: 3.75rem;
+  --mobile-nav-height: 3.25rem;
+  --book-mobile-bar-height: 4.25rem;
   --hero-booking-height: 5.5rem;
   /* Serena Hotels homepage: hero slider ≈ 77% of viewport */
   --hero-slide-height: min(77svh, calc(100svh - var(--hero-booking-height)));
 }
 
+@media (min-width: 768px) {
+  :root {
+    --site-header-height: 4.25rem;
+  }
+}
+
 html {
   scroll-behavior: smooth;
+}
+
+.page-container {
+  margin-inline: auto;
+  width: 100%;
+  max-width: 1400px;
+  min-width: 0;
+  padding-inline: 1rem;
+}
+
+@media (min-width: 640px) {
+  .page-container {
+    padding-inline: 1.25rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .page-container {
+    padding-inline: 2rem;
+  }
+}
+
+.pt-below-header {
+  padding-top: calc(var(--site-header-height) + env(safe-area-inset-top, 0px) + 1.25rem);
+}
+
+@media (min-width: 768px) {
+  .pt-below-header {
+    padding-top: calc(var(--site-header-height) + env(safe-area-inset-top, 0px) + 2rem);
+  }
+}
+
+.pb-book-mobile-bar {
+  padding-bottom: calc(var(--book-mobile-bar-height) + env(safe-area-inset-bottom, 0px) + 0.75rem);
+}
+
+@media (min-width: 1024px) {
+  .pb-book-mobile-bar {
+    padding-bottom: 0;
+  }
 }
 
 .hero-slide-frame {
@@ -152,4 +200,32 @@ body {
 
 .btn-ghost:hover {
   background: color-mix(in srgb, currentColor 8%, transparent);
+}
+
+/* Booking forms — 16px inputs on mobile avoids iOS zoom */
+.book-field {
+  margin-top: 0.5rem;
+  width: 100%;
+  min-height: 3rem;
+  border-radius: 0.5rem;
+  border: 1px solid color-mix(in srgb, var(--color-stone) 55%, transparent);
+  background: color-mix(in srgb, var(--color-sand) 35%, white);
+  padding: 0.75rem 0.875rem;
+  font-size: 1rem;
+  font-weight: 400;
+  letter-spacing: normal;
+  color: var(--color-ink);
+  outline: none;
+}
+
+.book-field:focus {
+  border-color: var(--color-lamp);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-lamp) 35%, transparent);
+}
+
+@media (min-width: 768px) {
+  .book-field {
+    min-height: 2.75rem;
+    font-size: 0.875rem;
+  }
 }

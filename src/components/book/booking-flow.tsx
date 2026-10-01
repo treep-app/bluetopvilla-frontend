@@ -5,6 +5,8 @@ import { BookingFlowHeader } from "@/components/book/booking-flow-header";
 import { BookingRoomsStep } from "@/components/book/booking-rooms-step";
 import { BookingSearchStep } from "@/components/book/booking-search-step";
 import { BookingTripSummary } from "@/components/book/booking-trip-summary";
+import { BookingTripSummaryMobile } from "@/components/book/booking-trip-summary-mobile";
+import { BookingMobileActionBar } from "@/components/book/booking-mobile-action-bar";
 import { HubtelPaymentWidget } from "@/components/book/hubtel-payment-widget";
 import { api } from "@/lib/api";
 import { type BookStepId, formatStayRange } from "@/lib/booking-utils";
@@ -225,8 +227,16 @@ export function BookingFlow({ property }: { property: PropertySettings }) {
     <div className="min-h-[calc(100svh-var(--site-header-height))] bg-sand">
       <BookingFlowHeader property={property} step={flowStep} />
 
-      <div className="mx-auto grid max-w-[1400px] gap-6 px-5 py-6 md:px-8 md:py-8 lg:grid-cols-12 lg:gap-8">
+      <div className="mx-auto grid min-w-0 max-w-[1400px] gap-5 px-4 py-5 pb-book-mobile-bar sm:gap-6 sm:px-5 sm:py-6 md:px-8 md:py-8 lg:grid-cols-12 lg:gap-8">
         <div className="min-w-0 lg:col-span-8">
+          {flowStep !== "search" ? (
+            <BookingTripSummaryMobile
+              checkIn={checkIn}
+              checkOut={checkOut}
+              room={chosen}
+              promoTotal={promo?.total}
+            />
+          ) : null}
           {step === "search" ? (
             <BookStepCard>
               <BookStepHeader
@@ -260,10 +270,6 @@ export function BookingFlow({ property }: { property: PropertySettings }) {
               error={search.isError ? (search.error as Error).message : null}
               dateLabel={formatStayRange(checkIn, checkOut)}
               onSelect={(slug) => setStep("rooms", { room: slug })}
-              onContinue={() => {
-                if (!selected) return;
-                setStep("guest", { room: selected });
-              }}
               onChangeDates={() => setStep("search")}
             />
             </BookStepCard>
@@ -272,6 +278,7 @@ export function BookingFlow({ property }: { property: PropertySettings }) {
           {step === "guest" ? (
             <BookStepCard>
             <form
+              id="book-guest-form"
               onSubmit={(event: FormEvent) => {
                 event.preventDefault();
                 setStep("summary");
@@ -300,7 +307,7 @@ export function BookingFlow({ property }: { property: PropertySettings }) {
                       type={type}
                       value={guest[field]}
                       onChange={(e) => setGuest((c) => ({ ...c, [field]: e.target.value }))}
-                      className="mt-2 w-full rounded-lg border border-stone/45 bg-sand/30 px-3 py-3 text-sm font-normal tracking-normal text-ink outline-none focus:border-lamp focus:ring-1 focus:ring-lamp/30"
+                      className="book-field"
                     />
                   </label>
                 ))}
@@ -309,7 +316,7 @@ export function BookingFlow({ property }: { property: PropertySettings }) {
                   <textarea
                     value={guest.specialRequests}
                     onChange={(e) => setGuest((c) => ({ ...c, specialRequests: e.target.value }))}
-                    className="mt-2 w-full rounded-lg border border-stone/45 bg-sand/30 px-3 py-3 text-sm font-normal tracking-normal text-ink outline-none focus:border-lamp focus:ring-1 focus:ring-lamp/30"
+                    className="book-field min-h-[6rem] resize-y"
                     rows={3}
                     placeholder="Arrival time, dietary needs, celebration notes…"
                   />
@@ -329,7 +336,7 @@ export function BookingFlow({ property }: { property: PropertySettings }) {
                         setPromo(null);
                         setPromoMessage("");
                       }}
-                      className="w-full border border-stone/50 bg-white px-3 py-3 font-mono text-sm tracking-wide text-ink outline-none focus:border-lamp sm:flex-1"
+                      className="book-field font-mono tracking-wide sm:flex-1"
                       placeholder="e.g. 94919"
                       autoComplete="off"
                     />
@@ -337,7 +344,7 @@ export function BookingFlow({ property }: { property: PropertySettings }) {
                       type="button"
                       onClick={() => void applyPromo()}
                       disabled={promoChecking}
-                      className="inline-flex items-center justify-center bg-ink px-5 py-3 text-[0.7rem] font-semibold tracking-[0.12em] text-sand uppercase disabled:opacity-60"
+                      className="inline-flex min-h-11 w-full items-center justify-center bg-ink px-5 py-3 text-[0.7rem] font-semibold tracking-[0.12em] text-sand uppercase disabled:opacity-60 sm:w-auto"
                     >
                       {promoChecking ? "Checking…" : "Apply code"}
                     </button>
@@ -347,7 +354,7 @@ export function BookingFlow({ property }: { property: PropertySettings }) {
                   ) : null}
                 </div>
               </div>
-              <button type="submit" className="btn btn-gold mt-8 inline-flex gap-2">
+              <button type="submit" className="btn btn-gold mt-8 hidden w-full gap-2 lg:inline-flex lg:w-auto">
                 Review booking
                 <ArrowRight className="h-4 w-4" aria-hidden />
               </button>
@@ -364,14 +371,14 @@ export function BookingFlow({ property }: { property: PropertySettings }) {
                 back={{ label: "Edit guest", onClick: () => setStep("guest") }}
               />
               <BookStepBody>
-              <dl className="space-y-3 rounded-xl border border-stone/35 bg-sand/40 p-5 text-sm">
+              <dl className="space-y-3 rounded-xl border border-stone/35 bg-sand/40 p-4 text-sm sm:p-5">
                 <div className="flex justify-between gap-4">
-                  <dt className="text-ink-soft">Room</dt>
-                  <dd className="font-medium text-ink">{chosen.name}</dd>
+                  <dt className="shrink-0 text-ink-soft">Room</dt>
+                  <dd className="min-w-0 text-right font-medium text-ink">{chosen.name}</dd>
                 </div>
                 <div className="flex justify-between gap-4">
-                  <dt className="text-ink-soft">Dates</dt>
-                  <dd className="text-right text-ink">{formatStayRange(checkIn, checkOut)}</dd>
+                  <dt className="shrink-0 text-ink-soft">Dates</dt>
+                  <dd className="min-w-0 text-right text-ink">{formatStayRange(checkIn, checkOut)}</dd>
                 </div>
                 <div className="flex justify-between gap-4">
                   <dt className="text-ink-soft">Guests</dt>
@@ -394,7 +401,7 @@ export function BookingFlow({ property }: { property: PropertySettings }) {
                   type="checkbox"
                   checked={accepted}
                   onChange={(e) => setAccepted(e.target.checked)}
-                  className="mt-1"
+                  className="mt-1 h-5 w-5 shrink-0 accent-lamp"
                 />
                 <span>
                   I accept the{" "}
@@ -418,7 +425,7 @@ export function BookingFlow({ property }: { property: PropertySettings }) {
                 type="button"
                 onClick={() => create.mutate()}
                 disabled={create.isPending || !accepted}
-                className="btn btn-gold mt-6 disabled:cursor-not-allowed disabled:opacity-50"
+                className="btn btn-gold mt-6 hidden w-full disabled:cursor-not-allowed disabled:opacity-50 lg:inline-flex lg:w-auto"
               >
                 {create.isPending ? "Holding the room…" : "Confirm and hold room"}
               </button>
@@ -448,7 +455,7 @@ export function BookingFlow({ property }: { property: PropertySettings }) {
               ) : (
                 <div className="grid gap-4 md:grid-cols-2">
                   {paymentOptions.data.hubtel.enabled ? (
-                    <div className="rounded-xl border border-stone/35 bg-sand/30 p-6 md:col-span-2">
+                    <div className="rounded-xl border border-stone/35 bg-sand/30 p-4 sm:p-6 md:col-span-2">
                       <p className="text-[0.65rem] font-bold tracking-[0.14em] text-lamp uppercase">Ghana · Hubtel</p>
                       <h3 className="display mt-2 text-2xl text-ink">
                         {paymentOptions.data.hubtel.mode === "checkout" ? "Pay online" : "Mobile money"}
@@ -481,7 +488,7 @@ export function BookingFlow({ property }: { property: PropertySettings }) {
                             <select
                               value={channel}
                               onChange={(e) => setChannel(e.target.value)}
-                              className="mt-2 w-full border border-stone/50 bg-sand/30 px-3 py-3 text-sm font-normal tracking-normal text-ink"
+                              className="book-field"
                             >
                               {paymentOptions.data.hubtel.channels.map((value) => (
                                 <option key={value} value={value}>
@@ -496,7 +503,7 @@ export function BookingFlow({ property }: { property: PropertySettings }) {
                               value={msisdn}
                               onChange={(e) => setMsisdn(e.target.value)}
                               inputMode="tel"
-                              className="mt-2 w-full border border-stone/50 bg-sand/30 px-3 py-3 text-sm font-normal tracking-normal text-ink"
+                              className="book-field"
                               placeholder={guest.phone || "055…"}
                             />
                           </label>
@@ -506,7 +513,7 @@ export function BookingFlow({ property }: { property: PropertySettings }) {
                         type="button"
                         onClick={() => payHubtel.mutate()}
                         disabled={payHubtel.isPending}
-                        className="btn btn-ink mt-5 w-full sm:w-auto sm:min-w-[220px]"
+                        className="btn btn-ink mt-5 hidden w-full lg:inline-flex lg:w-auto lg:min-w-[220px]"
                       >
                         {payHubtel.isPending
                           ? paymentOptions.data.hubtel.mode === "checkout"
@@ -520,7 +527,7 @@ export function BookingFlow({ property }: { property: PropertySettings }) {
                   ) : null}
 
                   {paymentOptions.data.cash.enabled ? (
-                    <div className="rounded-xl border border-stone/35 bg-white p-6">
+                    <div className="rounded-xl border border-stone/35 bg-white p-4 sm:p-6">
                       <p className="text-[0.65rem] font-bold tracking-[0.14em] text-lamp uppercase">On arrival</p>
                       <h3 className="display mt-2 text-2xl text-ink">Cash</h3>
                       <p className="mt-2 text-sm text-ink-soft">
@@ -539,7 +546,7 @@ export function BookingFlow({ property }: { property: PropertySettings }) {
                   ) : null}
 
                   {paymentOptions.data.stripe.enabled ? (
-                    <div className="rounded-xl border border-stone/35 bg-white p-6">
+                    <div className="rounded-xl border border-stone/35 bg-white p-4 sm:p-6">
                       <p className="text-[0.65rem] font-bold tracking-[0.14em] text-lamp uppercase">International</p>
                       <h3 className="display mt-2 text-2xl text-ink">Card (Stripe)</h3>
                       <p className="mt-2 text-sm text-ink-soft">Stripe Checkout for cards worldwide.</p>
@@ -570,7 +577,7 @@ export function BookingFlow({ property }: { property: PropertySettings }) {
           ) : null}
         </div>
 
-        <div className="lg:col-span-4">
+        <div className="hidden lg:col-span-4 lg:block">
           <BookingTripSummary
             checkIn={checkIn}
             checkOut={checkOut}
@@ -594,6 +601,34 @@ export function BookingFlow({ property }: { property: PropertySettings }) {
           />
         </div>
       </div>
+
+      <BookingMobileActionBar
+        step={flowStep}
+        checkIn={checkIn}
+        checkOut={checkOut}
+        room={chosen}
+        promo={promo}
+        selectedSlug={selected}
+        continueDisabled={!selected}
+        summaryDisabled={!accepted}
+        summaryPending={create.isPending}
+        onRoomsContinue={() => {
+          if (!selected) return;
+          setStep("guest", { room: selected });
+        }}
+        onSummaryConfirm={() => create.mutate()}
+        onPayHubtel={() => payHubtel.mutate()}
+        payHubtelPending={payHubtel.isPending}
+        payHubtelLabel={
+          paymentOptions.data?.hubtel.mode === "checkout" ? "Pay securely" : "Pay with Hubtel"
+        }
+        showPayCta={Boolean(
+          step === "pay" &&
+            paymentOptions.data?.hubtel.enabled &&
+            !paymentOptions.isLoading &&
+            !paymentOptions.isError,
+        )}
+      />
 
       {hubtelCheckout?.embedUrl || hubtelCheckout?.redirectUrl ? (
         <HubtelPaymentWidget

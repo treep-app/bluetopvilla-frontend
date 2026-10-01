@@ -46,7 +46,7 @@ export function SiteFooter({ property }: { property: PropertySettings | null }) 
       />
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-lamp/50 to-transparent" aria-hidden />
 
-      <div className="relative mx-auto grid max-w-[1400px] gap-12 px-5 py-14 md:grid-cols-12 md:gap-10 md:px-8 md:py-16 lg:gap-8">
+      <div className="relative mx-auto grid min-w-0 max-w-[1400px] gap-10 px-4 py-12 sm:gap-12 sm:px-5 sm:py-14 md:grid-cols-12 md:gap-10 md:px-8 md:py-16 lg:gap-8">
         <div className="md:col-span-4 lg:col-span-4">
           <Link href="/" className="inline-block shrink-0" aria-label="Blue Top Villa — home">
             <Image

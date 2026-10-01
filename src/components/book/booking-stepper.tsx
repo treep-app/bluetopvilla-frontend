@@ -12,9 +12,31 @@ type Props = {
 export function BookingStepper({ current, variant = "light" }: Props) {
   const currentIndex = BOOK_STEPS.findIndex((s) => s.id === current);
   const dark = variant === "dark";
+  const stepMeta = BOOK_STEPS[currentIndex] ?? BOOK_STEPS[0];
+  const progress = ((currentIndex + 1) / BOOK_STEPS.length) * 100;
 
   return (
-    <ol className="flex w-full items-center gap-0.5 sm:gap-1">
+    <div className="w-full">
+      <div className="mb-3 flex items-center justify-between gap-3 sm:hidden">
+        <p className={cn("text-xs font-semibold tracking-wide", dark ? "text-sand/80" : "text-ink-soft")}>
+          Step {currentIndex + 1} of {BOOK_STEPS.length}
+          <span className="mx-1.5 text-lamp">·</span>
+          <span className={dark ? "text-sand" : "text-ink"}>{stepMeta.label}</span>
+        </p>
+        <span className={cn("text-[0.65rem] font-bold tabular-nums", dark ? "text-lamp-soft" : "text-lamp")}>
+          {Math.round(progress)}%
+        </span>
+      </div>
+      <div
+        className={cn("mb-3 h-1 overflow-hidden rounded-full sm:hidden", dark ? "bg-white/15" : "bg-stone/35")}
+        aria-hidden
+      >
+        <div
+          className="h-full rounded-full bg-lamp transition-[width] duration-500 ease-out"
+          style={{ width: `${progress}%` }}
+        />
+      </div>
+    <ol className="hidden w-full items-center gap-0.5 sm:flex sm:gap-1">
       {BOOK_STEPS.map((step, index) => {
         const done = index < currentIndex;
         const active = index === currentIndex;
@@ -55,5 +77,6 @@ export function BookingStepper({ current, variant = "light" }: Props) {
         );
       })}
     </ol>
+    </div>
   );
 }

@@ -114,7 +114,7 @@ export function HeroSlider({ property }: { property: PropertySettings }) {
         </div>
 
         <div className="relative z-10 flex h-full min-h-0 flex-col">
-          <div className="flex flex-1 flex-col justify-end px-5 pb-3 pt-24 md:px-10 md:pb-5 md:pt-28">
+          <div className="flex min-w-0 flex-1 flex-col justify-end px-4 pb-3 pt-[calc(var(--site-header-height)+env(safe-area-inset-top,0px)+0.5rem)] sm:px-5 sm:pt-[calc(var(--site-header-height)+env(safe-area-inset-top,0px)+0.75rem)] md:px-10 md:pb-5 md:pt-[calc(var(--site-header-height)+1.5rem)]">
             <motion.div
               key={index}
               initial={{ opacity: 0, y: 16 }}

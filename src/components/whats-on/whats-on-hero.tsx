@@ -7,7 +7,7 @@ export function WhatsOnHero({ count }: { count: number }) {
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_70%_at_70%_-20%,rgba(217,157,38,0.22),transparent_55%)]"
         aria-hidden
       />
-      <div className="relative mx-auto max-w-[1400px] px-5 pb-14 pt-28 md:px-8 md:pb-20 md:pt-32">
+      <div className="relative mx-auto max-w-[1400px] px-4 pb-12 pt-[calc(var(--site-header-height)+2rem)] sm:px-5 sm:pb-14 md:px-8 md:pb-20 md:pt-32">
         <p className="eyebrow text-lamp">Blue Top Villa</p>
         <h1 className="display mt-3 max-w-3xl text-[clamp(2.25rem,5vw,3.75rem)] leading-[1.05] text-sand">
           What&apos;s on

@@ -36,25 +36,25 @@ function Counter({
   onChange: (n: number) => void;
 }) {
   return (
-    <div className="flex items-center justify-between rounded-xl border border-stone/40 bg-sand/40 px-4 py-3">
+    <div className="flex items-center justify-between rounded-xl border border-stone/40 bg-sand/40 px-3 py-2.5 sm:px-4 sm:py-3">
       <p className="text-[0.7rem] font-semibold tracking-[0.12em] text-ink uppercase">{label}</p>
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 sm:gap-3">
         <button
           type="button"
           aria-label={`Decrease ${label}`}
           disabled={value <= min}
           onClick={() => onChange(Math.max(min, value - 1))}
-          className="rounded-full p-1 text-ink-soft transition hover:bg-white disabled:opacity-30"
+          className="flex h-11 w-11 items-center justify-center rounded-full text-ink-soft transition hover:bg-white disabled:opacity-30"
         >
           <Minus className="h-4 w-4" />
         </button>
-        <span className="min-w-[1.5rem] text-center text-lg font-medium text-ink">{value}</span>
+        <span className="min-w-[1.75rem] text-center text-lg font-medium tabular-nums text-ink">{value}</span>
         <button
           type="button"
           aria-label={`Increase ${label}`}
           disabled={value >= max}
           onClick={() => onChange(Math.min(max, value + 1))}
-          className="rounded-full p-1 text-ink-soft transition hover:bg-white disabled:opacity-30"
+          className="flex h-11 w-11 items-center justify-center rounded-full text-ink-soft transition hover:bg-white disabled:opacity-30"
         >
           <Plus className="h-4 w-4" />
         </button>
@@ -131,13 +131,13 @@ export function BookingSearchStep({ defaults, checkInTime, checkOutTime, onSubmi
         type="button"
         onClick={() => openDate(which)}
         className={cn(
-          "flex w-full flex-col rounded-xl border border-stone/40 bg-white px-4 py-3.5 text-left transition hover:border-lamp/45",
+          "flex min-h-[4.25rem] w-full flex-col rounded-xl border border-stone/40 bg-white px-4 py-3.5 text-left transition hover:border-lamp/45",
           panel === which && "border-lamp bg-sand/40 ring-1 ring-lamp/25",
           error && which === "check-out" && !values.checkOut && "ring-2 ring-red-300",
         )}
       >
         <span className="text-[0.65rem] font-semibold tracking-[0.12em] text-lamp uppercase">{label}</span>
-        <span className="mt-1.5 flex items-center gap-2 text-sm font-medium text-ink">
+        <span className="mt-1.5 flex min-w-0 items-center gap-2 text-base font-medium text-ink sm:text-sm">
           <Calendar className="h-4 w-4 text-ink-soft" aria-hidden />
           {value ? formatStayDate(value) : "Select date"}
         </span>
@@ -147,7 +147,7 @@ export function BookingSearchStep({ defaults, checkInTime, checkOutTime, onSubmi
 
   return (
     <>
-      <form ref={formRef} onSubmit={submit} className="relative">
+      <form id="book-search-form" ref={formRef} onSubmit={submit} className="relative">
         <div className="flex flex-col gap-3 sm:flex-row">
           {dateBtn("check-in", "Check-in", values.checkIn)}
           {dateBtn("check-out", "Check-out", values.checkOut)}
@@ -185,7 +185,7 @@ export function BookingSearchStep({ defaults, checkInTime, checkOutTime, onSubmi
           Check-in {checkInTime} · Check-out {checkOutTime}
         </p>
 
-        <button type="submit" className="btn btn-gold mt-6 w-full sm:w-auto">
+        <button type="submit" className="btn btn-gold mt-6 hidden w-full lg:inline-flex lg:w-auto">
           Show available rooms
         </button>
       </form>

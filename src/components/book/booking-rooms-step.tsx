@@ -16,7 +16,6 @@ type Props = {
   error: string | null;
   dateLabel: string;
   onSelect: (slug: string) => void;
-  onContinue: () => void;
   onChangeDates: () => void;
 };
 
@@ -27,7 +26,6 @@ export function BookingRoomsStep({
   error,
   dateLabel,
   onSelect,
-  onContinue,
   onChangeDates,
 }: Props) {
   const [sort, setSort] = useState<SortKey>("recommended");
@@ -38,8 +36,6 @@ export function BookingRoomsStep({
     if (sort === "price-desc") list.sort((a, b) => Number(b.total) - Number(a.total));
     return list;
   }, [rooms, sort]);
-
-  const selected = rooms.find((room) => room.slug === selectedSlug) ?? null;
 
   if (loading) {
     return (
@@ -89,7 +85,7 @@ export function BookingRoomsStep({
         onChangeDates={onChangeDates}
       />
 
-      <ul className="mt-6 grid gap-4 sm:grid-cols-2 xl:gap-5">
+      <ul className="mt-5 grid gap-4 sm:mt-6 sm:grid-cols-2 xl:gap-5">
         {sorted.map((room) => {
           const active = room.slug === selectedSlug;
           const bed =
@@ -105,7 +101,7 @@ export function BookingRoomsStep({
                   active ? "ring-2 ring-lamp ring-offset-2 ring-offset-sand" : "hover:opacity-[0.97]",
                 )}
               >
-                <div className="relative aspect-[4/5] w-full overflow-hidden sm:aspect-[5/6]">
+                <div className="relative aspect-[5/6] w-full overflow-hidden sm:aspect-[5/6]">
                   {room.featuredImage ? (
                     <Image
                       src={room.featuredImage}
@@ -182,29 +178,6 @@ export function BookingRoomsStep({
         })}
       </ul>
 
-      {/* Mobile continue bar */}
-      <div className="sticky bottom-3 z-20 mt-6 lg:hidden">
-        <div className="flex items-center justify-between gap-3 border border-stone/40 bg-white/95 px-4 py-3 shadow-[0_16px_40px_-24px_rgba(22,20,16,0.45)] backdrop-blur-md">
-          <div className="min-w-0">
-            {selected ? (
-              <>
-                <p className="truncate text-sm font-medium text-ink">{selected.name}</p>
-                <p className="text-xs text-ink-soft">{formatMoney(selected.total, selected.currency)}</p>
-              </>
-            ) : (
-              <p className="text-sm text-ink-soft">Select a room to continue</p>
-            )}
-          </div>
-          <button
-            type="button"
-            disabled={!selected}
-            onClick={onContinue}
-            className="btn btn-gold shrink-0 disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            Continue
-          </button>
-        </div>
-      </div>
     </div>
   );
 }
@@ -233,7 +206,7 @@ function RoomsHeader({
       </button>
       <div className="mt-4 flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h2 className="display text-3xl text-ink md:text-4xl">Choose your room</h2>
+          <h2 className="display text-2xl text-ink sm:text-3xl md:text-4xl">Choose your room</h2>
           <p className="mt-2 text-sm text-ink-soft">
             {dateLabel}
             {count != null ? (

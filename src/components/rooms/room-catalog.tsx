@@ -48,7 +48,7 @@ export function RoomCatalog({ rooms }: Props) {
 
   return (
     <section className="flex min-h-0 flex-1 flex-col" aria-labelledby="room-catalog-heading">
-      <div className="shrink-0 border-b border-stone/35 bg-sand/80 px-5 py-4 backdrop-blur-sm md:px-8">
+      <div className="shrink-0 border-b border-stone/35 bg-sand/80 px-4 py-3.5 backdrop-blur-sm sm:px-5 sm:py-4 md:px-8">
         <div className="mx-auto flex max-w-[1400px] flex-wrap items-center justify-between gap-4">
           <div>
             <h2 id="room-catalog-heading" className="display text-xl text-ink md:text-2xl">
@@ -59,8 +59,8 @@ export function RoomCatalog({ rooms }: Props) {
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="flex flex-wrap items-center gap-1.5">
+          <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+            <div className="-mx-1 flex min-w-0 items-center gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:overflow-visible sm:pb-0 [&::-webkit-scrollbar]:hidden">
               <span className="mr-1 text-[0.62rem] font-semibold tracking-[0.12em] text-ink-soft uppercase">Guests</span>
               <FilterPill active={minGuests === 0} onClick={() => setMinGuests(0)}>Any</FilterPill>
               {guestFilters.map((n) => (
@@ -91,7 +91,7 @@ export function RoomCatalog({ rooms }: Props) {
         </div>
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-5 md:px-8 md:py-6">
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4 sm:px-5 sm:py-5 md:px-8 md:py-6">
         <div className="mx-auto max-w-[1400px]">
           {filtered.length === 0 ? (
             <div className="flex h-full min-h-[200px] flex-col items-center justify-center border border-dashed border-stone/50 bg-white/50 px-6 py-12 text-center">
@@ -130,7 +130,7 @@ function FilterPill({
       type="button"
       onClick={onClick}
       className={cn(
-        "rounded-full border px-2.5 py-1 text-[0.62rem] font-semibold tracking-[0.06em] uppercase transition",
+        "shrink-0 rounded-full border px-3 py-1.5 text-[0.62rem] font-semibold tracking-[0.06em] uppercase transition",
         active ? "border-ink bg-ink text-sand" : "border-stone/45 bg-white text-ink-soft hover:border-ink/25",
       )}
     >

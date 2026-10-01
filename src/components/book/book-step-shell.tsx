@@ -22,27 +22,27 @@ export function BookStepHeader({
   back?: { label: string; onClick: () => void };
 }) {
   return (
-    <div className="border-b border-stone/30 px-6 py-5 md:px-8 md:py-6">
+    <div className="border-b border-stone/30 px-4 py-4 sm:px-6 sm:py-5 md:px-8 md:py-6">
       {back ? (
         <button
           type="button"
           onClick={back.onClick}
-          className="mb-4 inline-flex items-center gap-2 rounded-full border border-stone/40 bg-sand/50 px-3.5 py-2 text-sm font-medium text-ink transition hover:border-lamp/40 hover:bg-sand"
+          className="mb-3 inline-flex min-h-11 items-center gap-2 rounded-full border border-stone/40 bg-sand/50 px-3 py-2 text-sm font-medium text-ink transition hover:border-lamp/40 hover:bg-sand sm:mb-4 sm:px-3.5"
         >
-          <span className="flex h-7 w-7 items-center justify-center rounded-full bg-ink text-sand">
-            <ArrowLeft className="h-3.5 w-3.5" strokeWidth={2.25} aria-hidden />
+          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-ink text-sand">
+            <ArrowLeft className="h-4 w-4" strokeWidth={2.25} aria-hidden />
           </span>
           {back.label}
         </button>
       ) : null}
-      <h2 className="display text-3xl text-ink md:text-4xl">{title}</h2>
+      <h2 className="display text-2xl text-ink sm:text-3xl md:text-4xl">{title}</h2>
       {subtitle ? <p className="mt-2 text-sm leading-relaxed text-ink-soft">{subtitle}</p> : null}
     </div>
   );
 }
 
 export function BookStepBody({ children, className = "" }: { children: ReactNode; className?: string }) {
-  return <div className={`px-6 py-6 md:px-8 md:py-7 ${className}`}>{children}</div>;
+  return <div className={`px-4 py-5 sm:px-6 sm:py-6 md:px-8 md:py-7 ${className}`}>{children}</div>;
 }
 
 export function BookTrustNote() {

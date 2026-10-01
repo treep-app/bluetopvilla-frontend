@@ -46,11 +46,19 @@ const nextConfig: NextConfig = {
     remotePatterns: mediaPatterns(),
   },
   async redirects() {
+    // Short Golden Ticket links (e.g. /t/8H4K2Q in SMS) resolve via the API,
+    // which 302s to the scratch page with the full token.
+    const apiUrl = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api").replace(/\/$/, "");
     return [
       {
         source: "/dining",
         destination: "/stay",
         permanent: true,
+      },
+      {
+        source: "/t/:code",
+        destination: `${apiUrl}/golden-tickets/t/:code`,
+        permanent: false,
       },
     ];
   },

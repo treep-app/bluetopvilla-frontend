@@ -4,7 +4,7 @@ import { BookingCalendar, type DatePickerFocus } from "@/components/booking-cale
 import { type RefObject, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
-type PopoverPos = { top: number; left: number; openUp: boolean };
+type PopoverPos = { top?: number; left: number; openUp: boolean };
 
 type UseBookingCalendarPopoverOptions = {
   panel: DatePickerFocus | null;
@@ -48,12 +48,15 @@ export function useBookingCalendarPopover({
     const spaceBelow = window.innerHeight - rect.bottom;
     const openUp = spaceBelow < calendarApproxHeight && rect.top > calendarApproxHeight;
     const width = Math.min(560, window.innerWidth - 24);
-    let left = rect.left;
-    if (left + width > window.innerWidth - 12) left = Math.max(12, window.innerWidth - width - 12);
+    const isNarrow = window.innerWidth < 768;
+    let left = isNarrow ? 12 : rect.left;
+    if (!isNarrow && left + width > window.innerWidth - 12) {
+      left = Math.max(12, window.innerWidth - width - 12);
+    }
     setPos({
-      top: openUp ? rect.top - 8 : rect.bottom + 8,
-      left,
-      openUp,
+      top: isNarrow ? undefined : openUp ? rect.top - 8 : rect.bottom + 8,
+      left: isNarrow ? 12 : left,
+      openUp: isNarrow ? true : openUp,
     });
   }, [panel, checkInTriggerRef, checkOutTriggerRef]);
 
@@ -88,12 +91,17 @@ export function useBookingCalendarPopover({
       ? createPortal(
           <div
             ref={popoverRef}
-            className="fixed z-[200]"
+            className="fixed z-[200] max-md:inset-x-3 max-md:bottom-3 max-md:top-auto max-md:max-h-[min(85svh,520px)] max-md:overflow-y-auto max-md:rounded-2xl max-md:border max-md:border-stone/40 max-md:bg-white max-md:shadow-[0_24px_80px_-24px_rgba(22,20,16,0.35)]"
             style={{
-              top: pos.openUp ? undefined : pos.top,
-              bottom: pos.openUp ? window.innerHeight - pos.top : undefined,
-              left: pos.left,
-              maxWidth: "min(560px, calc(100vw - 24px))",
+              top: pos.openUp && window.innerWidth >= 768 ? undefined : pos.top,
+              bottom:
+                window.innerWidth < 768
+                  ? "max(12px, env(safe-area-inset-bottom, 0px))"
+                  : pos.openUp && pos.top != null
+                    ? window.innerHeight - pos.top
+                    : undefined,
+              left: window.innerWidth < 768 ? undefined : pos.left,
+              maxWidth: window.innerWidth < 768 ? undefined : "min(560px, calc(100vw - 24px))",
             }}
           >
             <BookingCalendar

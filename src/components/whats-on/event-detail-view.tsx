@@ -71,7 +71,7 @@ export function EventDetailView({
   const hasPrice = event.priceFrom != null && Number(event.priceFrom) > 0;
 
   return (
-    <article className="bg-sand pb-20">
+    <article className="min-w-0 bg-sand pb-16 md:pb-20">
       <div className="relative overflow-hidden bg-ink">
         <div className="relative mx-auto grid max-w-[1200px] lg:grid-cols-[1.15fr_0.85fr]">
           <div className="relative min-h-[280px] lg:min-h-[420px]">
@@ -83,7 +83,7 @@ export function EventDetailView({
             <div className="absolute inset-0 bg-gradient-to-t from-ink/90 via-ink/25 to-ink/40 lg:bg-gradient-to-r lg:from-transparent lg:via-ink/20 lg:to-ink" />
           </div>
 
-          <div className="relative flex flex-col justify-end px-5 py-10 lg:px-10 lg:py-12">
+          <div className="relative flex min-w-0 flex-col justify-end px-4 py-8 sm:px-5 sm:py-10 lg:px-10 lg:py-12">
             <Link
               href="/whats-on"
               className="mb-6 inline-flex w-fit items-center gap-2 text-sm font-medium text-sand/80 transition hover:text-lamp"
@@ -128,7 +128,7 @@ export function EventDetailView({
         </div>
       </div>
 
-      <div className="mx-auto grid max-w-[1200px] gap-6 px-5 pt-8 md:px-8 lg:grid-cols-[1fr_minmax(0,340px)] lg:gap-8 lg:pt-10">
+      <div className="mx-auto grid min-w-0 max-w-[1200px] gap-6 px-4 pt-6 sm:px-5 sm:pt-8 md:px-8 lg:grid-cols-[1fr_minmax(0,340px)] lg:gap-8 lg:pt-10">
         <div className="space-y-6 min-w-0">
           <div className="grid gap-3 sm:grid-cols-2">
             <FactTile icon={<CalendarDays className="h-4 w-4" />} label="When" value={schedule} />

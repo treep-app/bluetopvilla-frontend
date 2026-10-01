@@ -50,7 +50,7 @@ export function BookingTripSummary({
   const totalAmount = promo?.total ?? (room ? Number(room.total) : 0);
 
   return (
-    <aside className="overflow-hidden rounded-2xl border border-stone/35 bg-white shadow-[0_24px_60px_-40px_rgba(22,20,16,0.2)] lg:sticky lg:top-[calc(var(--site-header-height)+1.25rem)]">
+    <aside className="hidden overflow-hidden rounded-2xl border border-stone/35 bg-white shadow-[0_24px_60px_-40px_rgba(22,20,16,0.2)] lg:block lg:sticky lg:top-[calc(var(--site-header-height)+1.25rem)]">
       <div className="border-b border-stone/30 px-5 py-4">
         <p className="text-[0.65rem] font-semibold tracking-[0.16em] text-lamp uppercase">Your stay</p>
         <p className="display mt-1 text-2xl text-ink">{property.name}</p>
