@@ -13,8 +13,9 @@ import type {
   RoomTypeDetail,
   RoomTypeSummary,
 } from "@/lib/types";
+import { getPublicApiBase } from "@/lib/api-base";
 
-const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api";
+const API = getPublicApiBase();
 
 export class ApiRequestError extends Error {
   constructor(
@@ -35,7 +36,18 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     },
     cache: "no-store",
   });
-  const json = (await response.json()) as ApiResponse<T>;
+  let json: ApiResponse<T>;
+  try {
+    json = (await response.json()) as ApiResponse<T>;
+  } catch {
+    throw new ApiRequestError(
+      response.status >= 500
+        ? "The booking service is temporarily unavailable. Please try again in a moment."
+        : "Unexpected response from the server.",
+      "NETWORK_ERROR",
+      response.status,
+    );
+  }
   if (!json.success) {
     throw new ApiRequestError(json.error.message, json.error.code, response.status);
   }

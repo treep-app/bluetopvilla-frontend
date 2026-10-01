@@ -45,10 +45,24 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: mediaPatterns(),
   },
+  async rewrites() {
+    const proxyTarget = process.env.API_PROXY_TARGET?.replace(/\/$/, "");
+    if (!proxyTarget) return [];
+    return [
+      {
+        source: "/api-proxy/:path*",
+        destination: `${proxyTarget}/:path*`,
+      },
+    ];
+  },
   async redirects() {
     // Short Golden Ticket links (e.g. /t/8H4K2Q in SMS) resolve via the API,
     // which 302s to the scratch page with the full token.
-    const apiUrl = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api").replace(/\/$/, "");
+    const apiUrl = (
+      process.env.API_PROXY_TARGET ??
+      process.env.NEXT_PUBLIC_API_URL ??
+      "http://localhost:4000/api"
+    ).replace(/\/$/, "");
     return [
       {
         source: "/dining",
