@@ -1,10 +1,11 @@
 "use client";
 
-import { BookingCalendar, type DatePickerFocus } from "@/components/booking-calendar";
+import { useBookingCalendarPopover } from "@/components/booking-calendar-popover";
+import type { DatePickerFocus } from "@/components/booking-calendar";
 import { formatStayDate } from "@/lib/booking-utils";
 import { cn } from "@/lib/utils";
 import { Calendar, Minus, Plus } from "lucide-react";
-import { FormEvent, useEffect, useRef, useState } from "react";
+import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 
 type Values = {
   checkIn: string;
@@ -64,7 +65,9 @@ function Counter({
 
 export function BookingSearchStep({ defaults, checkInTime, checkOutTime, onSubmit }: Props) {
   const today = new Date().toISOString().slice(0, 10);
-  const rootRef = useRef<HTMLFormElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+  const checkInRef = useRef<HTMLButtonElement>(null);
+  const checkOutRef = useRef<HTMLButtonElement>(null);
   const [values, setValues] = useState({
     checkIn: defaults.checkIn || today,
     checkOut: defaults.checkOut,
@@ -76,6 +79,8 @@ export function BookingSearchStep({ defaults, checkInTime, checkOutTime, onSubmi
   const [focus, setFocus] = useState<DatePickerFocus>("check-in");
   const [error, setError] = useState(false);
 
+  const closePanel = useCallback(() => setPanel(null), []);
+
   useEffect(() => {
     setValues({
       checkIn: defaults.checkIn || today,
@@ -86,17 +91,25 @@ export function BookingSearchStep({ defaults, checkInTime, checkOutTime, onSubmi
     });
   }, [defaults.checkIn, defaults.checkOut, defaults.adults, defaults.children, defaults.rooms, today]);
 
-  useEffect(() => {
-    const onDown = (event: MouseEvent) => {
-      if (rootRef.current && !rootRef.current.contains(event.target as Node)) setPanel(null);
-    };
-    document.addEventListener("pointerdown", onDown);
-    return () => document.removeEventListener("pointerdown", onDown);
-  }, []);
+  const calendarPortal = useBookingCalendarPopover({
+    panel,
+    checkIn: values.checkIn,
+    checkOut: values.checkOut,
+    focus,
+    onFocusChange: setFocus,
+    onChange: (checkIn, checkOut) => {
+      setValues((c) => ({ ...c, checkIn, checkOut }));
+      setError(false);
+    },
+    onComplete: closePanel,
+    checkInTriggerRef: checkInRef,
+    checkOutTriggerRef: checkOutRef,
+    formRef,
+  });
 
   const openDate = (next: DatePickerFocus) => {
     setFocus(next);
-    setPanel(next);
+    setPanel((current) => (current === next ? null : next));
     setError(false);
   };
 
@@ -107,12 +120,14 @@ export function BookingSearchStep({ defaults, checkInTime, checkOutTime, onSubmi
       openDate("check-out");
       return;
     }
+    setPanel(null);
     onSubmit(values);
   };
 
   const dateBtn = (which: DatePickerFocus, label: string, value: string) => (
     <div className="relative flex-1">
       <button
+        ref={which === "check-in" ? checkInRef : checkOutRef}
         type="button"
         onClick={() => openDate(which)}
         className={cn(
@@ -127,66 +142,54 @@ export function BookingSearchStep({ defaults, checkInTime, checkOutTime, onSubmi
           {value ? formatStayDate(value) : "Select date"}
         </span>
       </button>
-      {panel === which ? (
-        <div className="absolute top-full left-0 z-40 mt-2">
-          <BookingCalendar
-            checkIn={values.checkIn}
-            checkOut={values.checkOut}
-            focus={focus}
-            onFocusChange={setFocus}
-            onChange={(checkIn, checkOut) => {
-              setValues((c) => ({ ...c, checkIn, checkOut }));
-              setError(false);
-            }}
-            onComplete={() => setPanel(null)}
-          />
-        </div>
-      ) : null}
     </div>
   );
 
   return (
-    <form ref={rootRef} onSubmit={submit} className="relative">
-      <div className="flex flex-col gap-3 sm:flex-row">
-        {dateBtn("check-in", "Check-in", values.checkIn)}
-        {dateBtn("check-out", "Check-out", values.checkOut)}
-      </div>
+    <>
+      <form ref={formRef} onSubmit={submit} className="relative">
+        <div className="flex flex-col gap-3 sm:flex-row">
+          {dateBtn("check-in", "Check-in", values.checkIn)}
+          {dateBtn("check-out", "Check-out", values.checkOut)}
+        </div>
 
-      <div className="mt-4 grid gap-3 sm:grid-cols-3">
-        <Counter
-          label="Adults"
-          value={Number(values.adults)}
-          min={1}
-          max={10}
-          onChange={(n) => setValues((c) => ({ ...c, adults: String(n) }))}
-        />
-        <Counter
-          label="Children"
-          value={Number(values.children)}
-          min={0}
-          max={10}
-          onChange={(n) => setValues((c) => ({ ...c, children: String(n) }))}
-        />
-        <Counter
-          label="Rooms"
-          value={Number(values.rooms)}
-          min={1}
-          max={5}
-          onChange={(n) => setValues((c) => ({ ...c, rooms: String(n) }))}
-        />
-      </div>
+        <div className="mt-4 grid gap-3 sm:grid-cols-3">
+          <Counter
+            label="Adults"
+            value={Number(values.adults)}
+            min={1}
+            max={10}
+            onChange={(n) => setValues((c) => ({ ...c, adults: String(n) }))}
+          />
+          <Counter
+            label="Children"
+            value={Number(values.children)}
+            min={0}
+            max={10}
+            onChange={(n) => setValues((c) => ({ ...c, children: String(n) }))}
+          />
+          <Counter
+            label="Rooms"
+            value={Number(values.rooms)}
+            min={1}
+            max={5}
+            onChange={(n) => setValues((c) => ({ ...c, rooms: String(n) }))}
+          />
+        </div>
 
-      {error && !values.checkOut ? (
-        <p className="mt-4 text-sm text-red-700">Please choose a check-out date.</p>
-      ) : null}
+        {error && !values.checkOut ? (
+          <p className="mt-4 text-sm text-red-700">Please choose a check-out date.</p>
+        ) : null}
 
-      <p className="mt-4 text-xs text-ink-soft">
-        Check-in {checkInTime} · Check-out {checkOutTime}
-      </p>
+        <p className="mt-4 text-xs text-ink-soft">
+          Check-in {checkInTime} · Check-out {checkOutTime}
+        </p>
 
-      <button type="submit" className="btn btn-gold mt-6 w-full sm:w-auto">
-        Show available rooms
-      </button>
-    </form>
+        <button type="submit" className="btn btn-gold mt-6 w-full sm:w-auto">
+          Show available rooms
+        </button>
+      </form>
+      {calendarPortal}
+    </>
   );
 }

@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
-  const rooms = await api.rooms();
+  const [rooms, events] = await Promise.all([api.rooms(), api.events()]);
   return [
     "",
     "/stay",
@@ -17,6 +17,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/about",
     "/contact",
     "/events",
+    "/whats-on",
+    ...events.map((event) => `/whats-on/${event.slug}`),
     "/venue",
     "/book",
     "/terms",

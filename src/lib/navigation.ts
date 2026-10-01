@@ -37,6 +37,7 @@ export const mobileNavGroups: MobileNavGroup[] = [
       { href: "/wellness", label: "Wellness", match: "exact" },
       { href: "/stay#dining", label: "Dining", match: "exact" },
       { href: "/events", label: "Meetings & events", match: "prefix" },
+      { href: "/whats-on", label: "What's on", match: "prefix" },
       { href: "/venue", label: "Venue enquiry", match: "exact" },
     ],
   },

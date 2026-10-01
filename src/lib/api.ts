@@ -49,6 +49,7 @@ export const api = {
   gallery: (category?: string) =>
     request<GalleryImageDto[]>(`/gallery${category ? `?category=${category}` : ""}`),
   events: () => request<EventDto[]>("/events"),
+  event: (slug: string) => request<EventDto>(`/events/${encodeURIComponent(slug)}`),
   eventSpaces: () => request<EventSpaceDto[]>("/event-spaces"),
   reserveEvent: (body: Record<string, unknown>) =>
     request<{ reference: string; status: string }>("/event-reservations", {

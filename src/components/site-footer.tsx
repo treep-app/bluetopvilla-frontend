@@ -9,6 +9,7 @@ const explore = [
   { href: "/stay", label: "Plan your stay" },
   { href: "/wellness", label: "Wellness" },
   { href: "/events", label: "Meetings & events" },
+  { href: "/whats-on", label: "What's on" },
   { href: "/venue", label: "Venue enquiry" },
   { href: "/gallery", label: "Gallery" },
 ];

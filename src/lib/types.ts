@@ -195,6 +195,8 @@ export type EventDto = {
   recurrenceTime: string | null;
   location: string | null;
   imageUrl: string | null;
+  priceFrom: string | null;
+  priceNote: string | null;
 };
 
 export type EventSpaceDto = {

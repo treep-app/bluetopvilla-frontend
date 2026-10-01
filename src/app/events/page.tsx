@@ -1,4 +1,4 @@
-import { EventsCalendarSection } from "@/components/events/events-calendar-section";
+import { EventsWhatsOnPromo } from "@/components/events/events-whats-on-promo";
 import { EventsCtaBand } from "@/components/events/events-cta-band";
 import { EventsHero } from "@/components/events/events-hero";
 import { EventsProcess } from "@/components/events/events-process";
@@ -31,7 +31,7 @@ export default async function EventsPage() {
       <EventsTypeShowcase events={eventTypes} />
       <EventsProcess property={property} />
       <EventsSpaces property={property} spaces={spaces} />
-      <EventsCalendarSection events={published} timezone={property.timezone} />
+      <EventsWhatsOnPromo events={published} timezone={property.timezone} currency={property.currency} />
       <EventsCtaBand />
     </div>
   );
